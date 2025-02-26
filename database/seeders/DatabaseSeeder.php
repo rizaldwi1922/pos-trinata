@@ -22,14 +22,14 @@ class DatabaseSeeder extends Seeder
             'name' => 'Super Admin',
             'email' => 'super@gmail.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('admin123')
+            'password' => Hash::make('trinata123')
         ]);
 
         $webmin =  User::create([
             'name' => 'Admin',
             'email' => 'webmin@gmail.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('admin123')
+            'password' => Hash::make('trinata123')
         ]);
 
         $this->call(RoleSeeder::class);
