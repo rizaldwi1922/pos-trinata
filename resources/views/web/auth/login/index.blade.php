@@ -7,7 +7,7 @@
         <div class="card col-lg-4 col-md-8 col-sm-12">
             <div class="card-body">
                 <div class="app-brand justify-content-center">
-                    <img src="{{ asset('assets/img/ic_logo_new.png') }}" style="width: 140px; image-orientation: none;" alt="login_image">
+                   <h2>Kasir</h2>
                 </div>
                 <form action="{{ route('auth.login') }}" class="mb-3" method="POST">
                     @csrf

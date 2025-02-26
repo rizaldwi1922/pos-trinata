@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white px-4 px-lg-5 py-3 py-lg-0">
     <a href="{{ route('web.home') }}" class="navbar-brand p-0">
-        <img src="{{ asset('assets/img/ic_logo_new.png') }}" width="100px" alt="Logo">
+       <h2>Kasir</h2>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
         <span class="fa fa-bars"></span>

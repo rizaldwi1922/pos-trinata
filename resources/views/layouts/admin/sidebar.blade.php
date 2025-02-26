@@ -16,7 +16,7 @@
     <div class="app-brand demo">
         <a href="" class="app-brand-link col-12 d-flex align-items-center justify-content-center">
             <span class="app-brand-text demo menu-text fw-bolder" style="text-transform: capitalize !important;">
-                <img src="{{ asset('assets/img/ic_logo_new.png') }}" style="width: 120px; image-orientation: none;" alt="">
+               <h2>Kasir</h2>
             </span>
         </a>
     </div>
