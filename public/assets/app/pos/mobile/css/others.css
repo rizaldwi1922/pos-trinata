@@ -1,0 +1,131 @@
+.others .header{
+    width: calc(100% -16px);
+    height: 90px;
+    background-color: #3B3486;
+    padding: 8px;
+    padding-top: 60px;
+}
+
+.others .thumbnail-profile-users{
+    width: 80px;
+    height: 80px;
+    background-color: rgb(224, 224, 224);
+    border-radius: 50%;
+    margin-top: 4px;
+    margin-left: 8px;
+    float: left;
+}
+
+.others .wrap-profile-users{
+    width: calc(99% - 100px);
+    height: 100%;
+    float: right;
+    padding-left: 8px;
+    margin-top: 16px;
+}
+
+.others .wrap-profile-users .name-profile-users{
+    font-size: 20px;
+    font-weight: 500;
+    color: white;
+}
+
+.others .wrap-profile-users .email-profile-users{
+    font-size: 16px;
+    color: white;
+    font-weight: 300;
+}
+
+.others .wrap-menu-others{
+    width: 100%;
+    height: auto;
+    padding: 8px 0px;
+    margin-top: 16px;
+}
+
+.others .list-menu-others{
+    width: calc(100% - 24px);
+    height: 40px;
+    background-color: white;
+    margin-top: 8px;
+    padding: 12px 8px;
+    margin: 0px 0px;
+    /* box-shadow: 0px 0px 3px rgba(0, 0, 0, .3); */
+    border-bottom: 1px solid rgba(0,0,0,.3);
+    padding-left: 16px;
+}
+
+.others .list-menu-others i{
+    width: 24px;
+    height: 24px;
+    float: left;
+    margin-right: 8px;
+    margin-top: 8px;
+    line-height: 30px;
+    font-size: 18px;
+}
+
+.others .list-menu-others .label{
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 8px;
+    float: left;
+}
+
+
+/* modal profile */
+#modal-profile .thumbnail-profile{
+    width: 120px;
+    height: 120px;
+    background-color: rgb(180, 180, 180);
+    border-radius: 8px;
+}
+
+#modal-profile .content-update-profile{
+    height: auto;
+    width: 100%;
+}
+
+#modal-profile .wrap-input{
+    height: auto;
+    margin-top: 12px;
+    width: 100%;
+}
+
+#modal-profile .wrap-input label{
+    display: block;
+}
+
+#modal-profile .wrap-input input{
+    width:calc(100% - 16px);
+    height: 40px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: 1px solid rgb(180, 180, 180);
+    padding: 0px 8px;
+}
+
+#modal-profile .wrap-input button{
+    width: 100%;
+    height: 40px;
+    margin-top: 12px;
+    border-radius: 8px;
+    outline: none;
+    border:1px solid rgb(180, 180, 180);
+}
+
+/* modal riwayat transaksi */
+
+#modal-riwayat-transaksi .wrap-riwayat-transaksi{
+    width: 100%;
+    height: auto;
+    padding: 8px 0px;
+}
+
+#modal-riwayat-transaksi .heading,
+#modal-riwayat-shift .heading{
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+

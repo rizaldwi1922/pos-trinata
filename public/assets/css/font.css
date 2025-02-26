@@ -1,0 +1,50 @@
+@font-face {
+    font-family: 'Aspekta-light';
+    src: url('../font/aspekta/Aspekta-300.ttf');
+    font-weight: 300;
+    font-style: light;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Aspekta-Normal';
+    src: url('../font/aspekta/Aspekta-400.ttf');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Aspekta-medium';
+    src: url('../font/aspekta/Aspekta-500.ttf');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Aspekta-semibold';
+    src: url('../font/aspekta/Aspekta-600.ttf');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* utils component */
+.button-active{
+    background-color: #FA400F;
+    border:2px solid black;
+    box-shadow: 4px 4px 1px black;
+    transition: .3s ease-in-out;
+    color: white !important;
+    padding: 6px 18px;
+    border-radius: 8px;
+    transition: .3s ease-in-out;
+    cursor: pointer;
+}
+
+.button-active:hover{
+    box-shadow: none;
+    transition: .3s ease-in-out;
+}
