@@ -9,9 +9,20 @@
                     </div>
                 </div>
             </div>
-
+            
             <div class="col-6 order-lg-last order-second">
                 <div class="topbar justify-content-end">
+                    <div class="dropdown" onclick="location.reload();">
+                        <div id="btn-shift-out" class="topbar-item">
+                            <div class="btn btn-icon w-auto h-auto btn-clean d-flex align-items-center py-0 mr-3">
+                                <span class="symbol symbol-35 symbol-light-success">
+                                    <span class="symbol-label" style="background: #2469a5;font-size:22px;color:white">
+                                        <i class="mdi mdi-refresh"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="dropdown" onclick="logout()">
                         <div id="btn-shift-out" class="topbar-item">
                             <div class="btn btn-icon w-auto h-auto btn-clean d-flex align-items-center py-0 mr-3">
