@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\IngredientStock;
 use App\Models\ProductIngredient;
 use App\Models\ProductIngredientStock;
 use App\Models\ProductStock;
@@ -106,10 +107,8 @@ class PurchaseController extends Controller
                 }
 
                 list($type, $id) = explode(',', $key);
-
                 if ($type == 'v') {
                     $variant = ProductVariant::find($id);
-
                     ProductStock::create([
                         'store_id' => $user->store_id,
                         'product_id' => $variant->product_id,
@@ -125,7 +124,7 @@ class PurchaseController extends Controller
                 } else {
                     $ingredient = ProductIngredient::find($id);
 
-                    ProductIngredientStock::create([
+                    IngredientStock::create([
                         'store_id' => $user->store_id,
                         'ingredient_id' => $ingredient->id,
                         'user_id' => $user->id,
