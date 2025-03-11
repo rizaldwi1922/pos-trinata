@@ -64,7 +64,6 @@ class ProductVariantController extends Controller
     public function create()
     {
         $products = Product::where('store_id', auth()->user()->store_id)->orderBy('name', 'ASC')->get();
-
         return self::view('admin.product-variants.form', compact('products'));
     }
 
@@ -82,6 +81,7 @@ class ProductVariantController extends Controller
             'measurements' => 'required',
             'codes' => 'required',
         ]);
+
 
         DB::beginTransaction();
 
@@ -147,6 +147,8 @@ class ProductVariantController extends Controller
         $request->validate([
             'variant_ids' => 'required',
             'units' => 'required',
+            'unit_purchase' => 'required',
+            'factor' => 'required',
             'buy_prices' => 'required',
             'sell_prices' => 'required',
             'sell_retail_prices' => 'required',
@@ -171,6 +173,8 @@ class ProductVariantController extends Controller
                 'sell_price' => str_replace('.', '', $request->sell_prices[$key]),
                 'sell_retail_price' => $request->sell_retail_prices[$key] ? str_replace('.', '', $request->sell_retail_prices[$key]) : null,
                 'measurement' => $request->measurements[$key],
+                'purchase_unit_id' => $request->unit_purchase[$key],
+                'factor' => $request->factor[$key],
                 'code' => $code
             ]);
         }

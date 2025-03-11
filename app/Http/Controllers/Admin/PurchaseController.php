@@ -46,14 +46,14 @@ class PurchaseController extends Controller
     public function create()
     {
         $variants = ProductVariant::where('products.store_id', auth()->user()->store_id)
-            ->select(DB::raw("CONCAT('v,', product_variants.id) as id"), DB::raw("CONCAT(products.name, ' (', product_variants.measurement, ' ', product_units.name, ')') as name"))
+            ->select(DB::raw("CONCAT('v,', product_variants.id) as id"), DB::raw("CONCAT(products.name, ' (', product_units.name, ')') as name"))
             ->join('products', 'product_variants.product_id', '=', 'products.id')
-            ->join('product_units', 'product_variants.unit_id', '=', 'product_units.id')
+            ->join('product_units', 'product_variants.purchase_unit_id', '=', 'product_units.id')
             ->pluck('name', 'product_variants.id');
 
         $ingredients = ProductIngredient::where('product_ingredients.store_id', auth()->user()->store_id)
             ->select(DB::raw("CONCAT('i,', product_ingredients.id) as id"), DB::raw("CONCAT(product_ingredients.name, ' (', product_units.name, ')') as name"))
-            ->join('product_units', 'product_ingredients.unit_id', '=', 'product_units.id')
+            ->join('product_units', 'product_ingredients.purchase_unit_id', '=', 'product_units.id')
             ->pluck('name', 'product_ingredients.id');
 
         $suppliers = Supplier::where('store_id', auth()->user()->store_id)->pluck('name', 'id');
@@ -117,8 +117,8 @@ class PurchaseController extends Controller
                         'supplier_id' => $request->suppliers[$index],
                         'purchase_id' => $purchase->id,
                         'code' => $request->codes[$index] ?? 'STV-' . Carbon::now()->format('YmdHis'),
-                        'amount_added' => $request->amounts[$index],
-                        'amount_available' => $request->amounts[$index],
+                        'amount_added' => $request->amounts[$index] * $variant->factor,
+                        'amount_available' => $request->amounts[$index] * $variant->factor,
                         'expired_at' => $request->expiry_dates[$index] ? Carbon::parse($request->expiry_dates[$index]) : null,
                     ]);
                 } else {
@@ -131,8 +131,8 @@ class PurchaseController extends Controller
                         'supplier_id' => $request->suppliers[$index],
                         'purchase_id' => $purchase->id,
                         'code' => $request->codes[$index] ?? 'STB-' . Carbon::now()->format('YmdHis'),
-                        'amount_added' => $request->amounts[$index],
-                        'amount_available' => $request->amounts[$index],
+                        'amount_added' => $request->amounts[$index] * $ingredient->factor,
+                        'amount_available' => $request->amounts[$index] * $ingredient->factor,
                         'expired_at' => $request->expiry_dates[$index] ? Carbon::parse($request->expiry_dates[$index]) : null,
                     ]);
                 }

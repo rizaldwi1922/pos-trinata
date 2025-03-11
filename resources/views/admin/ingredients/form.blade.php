@@ -39,6 +39,21 @@
                     </select>
                 </div>
                 <div class="mb-3">
+                    <label for="purchase_unit_id" class="form-label">Satuan Beli<span class="text-danger">*</span></label>
+                    <select class="form-select" id="purchase_unit_id" name="purchase_unit_id" required>
+                        <option value="">Pilih Satuan Beli</option>
+                        @foreach (App\Models\ProductUnit::where('store_id', auth()->user()->store_id)->orderBy('name', 'ASC')->get() as $unit)
+                            <option value="{{ $unit->id }}" @if (isset($ingredient) && $ingredient->purchase_unit_id == $unit->id) selected @endif>
+                                {{ $unit->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="factor" class="form-label">Factor<span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" value="{{ $ingredient->factor ?? '' }}" id="factor"
+                        name="factor" required>
+                </div>
+                <div class="mb-3">
                     <label for="price" class="form-label">Harga Bahan <span class="text-danger">*</span></label>
                     <input type="text" class="form-control number-format" value="{{ $ingredient->price ?? '' }}" id="price"
                         name="price" required>

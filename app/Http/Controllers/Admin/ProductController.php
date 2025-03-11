@@ -50,6 +50,8 @@ class ProductController extends Controller
             'name' => 'required',
             'category_id' => 'required',
             'units' => 'required',
+            'unit_purchase' => 'required',
+            'factor' => 'required',
             'buy_price' => 'nullable',
             'sell_price' => 'nullable',
             'buy_prices' => 'required',
@@ -63,6 +65,8 @@ class ProductController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'imageUrl' => 'nullable:url',
         ]);
+
+       // dd($request);
 
         DB::beginTransaction();
 
@@ -122,6 +126,8 @@ class ProductController extends Controller
                         'store_id' => $user->store_id,
                         'product_id' => $product->id,
                         'unit_id' => $request->units[$i],
+                        'purchase_unit_id' => $request->unit_purchase[$i],
+                        'factor' => $request->factor[$i],
                         'buy_price' => (int) str_replace('.', '', $request->buy_prices[$i]),
                         'sell_price' => (int) str_replace('.', '', $request->sell_prices[$i]),
                         'sell_retail_price' => (int) str_replace('.', '', $request->sell_retail_prices[$i]),

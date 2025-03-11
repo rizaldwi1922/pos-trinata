@@ -83,6 +83,8 @@ class IngredientController extends Controller
             'code' => 'nullable',
             'unit_id' => 'required',
             'price' => 'required',
+            'purchase_unit_id' => 'required',
+            'factor' => 'required'
         ]);
 
         ProductIngredient::create([
@@ -91,6 +93,8 @@ class IngredientController extends Controller
             'code' => $request->code ?? 'B-' . rand(10000000, 99999999),
             'price' => (int) str_replace('.', '', $request->price),
             'unit_id' => $request->unit_id,
+            'purchase_unit_id' => $request->purchase_unit_id,
+            'factor' => $request->factor
         ]);
 
         Alert::success('Berhasil', 'Bahan Produk berhasil ditambahkan');
@@ -118,6 +122,8 @@ class IngredientController extends Controller
             'code' => 'nullable',
             'unit_id' => 'required',
             'price' => 'required',
+            'purchase_unit_id' => 'required',
+            'factor' => 'required'
         ]);
 
         ProductIngredient::find($id)->update([
@@ -125,6 +131,8 @@ class IngredientController extends Controller
             'code' => $request->code ?? 'B-' . rand(10000000, 99999999),
             'unit_id' => $request->unit_id,
             'price' => (int) str_replace('.', '', $request->price),
+            'purchase_unit_id' => $request->purchase_unit_id,
+            'factor' => $request->factor
         ]);
 
         Alert::success('Berhasil', 'Bahan Produk berhasil diperbarui');
