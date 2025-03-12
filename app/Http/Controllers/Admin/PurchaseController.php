@@ -67,9 +67,9 @@ class PurchaseController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'invoice_number' => 'required',
-            'total' => 'required',
-            'due_date' => 'nullable'
+            'invoice_number' => 'required|string|max:50',
+            'total' => 'required|numeric|min:0',
+            'due_date' => 'nullable|date',
         ]);
 
         $user = auth()->user();
@@ -94,9 +94,9 @@ class PurchaseController extends Controller
             }
 
             foreach ($request->items as $index => $key) {
-                if ($index == 0) {
-                    continue;
-                }
+                // if ($index == 0) {
+                //     continue;
+                // }
 
                 if ((!$key || !$request->suppliers[$index] || !$request->amounts[$index])) {
                     DB::rollBack();
@@ -108,14 +108,15 @@ class PurchaseController extends Controller
 
                 list($type, $id) = explode(',', $key);
                 if ($type == 'v') {
+                    $itemPrice = (int) str_replace('.', '', $request->price[$index]);
                     $variant = ProductVariant::find($id);
                     ProductStock::create([
                         'store_id' => $user->store_id,
                         'product_id' => $variant->product_id,
                         'variant_id' => $variant->id,
                         'user_id' => $user->id,
-                        'item_price' => $request->price[$index],
-                        'unit_price' => $request->price[$index] / $variant->factor,
+                        'item_price' => $itemPrice,
+                        'unit_price' => $itemPrice / $variant->factor,
                         'supplier_id' => $request->suppliers[$index],
                         'purchase_id' => $purchase->id,
                         'code' => $request->codes[$index] ?? 'STV-' . Carbon::now()->format('YmdHis'),
@@ -125,13 +126,13 @@ class PurchaseController extends Controller
                     ]);
                 } else {
                     $ingredient = ProductIngredient::find($id);
-
+                    $itemPrice = (int) str_replace('.', '', $request->price[$index]);
                     IngredientStock::create([
                         'store_id' => $user->store_id,
                         'ingredient_id' => $ingredient->id,
                         'user_id' => $user->id,
-                        'item_price' => $request->price[$index],
-                        'unit_price' => $request->price[$index] / $ingredient->factor,
+                        'item_price' => $itemPrice,
+                        'unit_price' => $itemPrice / $ingredient->factor,
                         'supplier_id' => $request->suppliers[$index],
                         'purchase_id' => $purchase->id,
                         'code' => $request->codes[$index] ?? 'STB-' . Carbon::now()->format('YmdHis'),
@@ -211,10 +212,13 @@ class PurchaseController extends Controller
     public function destroy(string $id)
     {
         $purchase = Purchase::findOrFail($id);
+        //dd(ProductStock::where('purchase_id', $purchase->id)->toSql(), ProductIngredientStock::where('purchase_id', $purchase->id)->toSql());
 
         ProductStock::where('purchase_id', $purchase->id)->delete();
 
         ProductIngredientStock::where('purchase_id', $purchase->id)->delete();
+
+        IngredientStock::where('purchase_id', $purchase->id)->delete();
 
         $purchase->delete();
 
