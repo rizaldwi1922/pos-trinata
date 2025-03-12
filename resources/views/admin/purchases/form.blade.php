@@ -52,14 +52,14 @@
                                                     <tr>
                                                         <th>Varian / Bahan <span class="text-danger">*</span></th>
                                                         <th>Supplier <span class="text-danger">*</span></th>
-                                                        <th>Kode</th>
+                                                        <th>Harga</th>
                                                         <th>Jumlah <span class="text-danger">*</span></th>
                                                         <th>Kadaluwarsa</th>
                                                         <th>Aksi</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr style="display: none">
+                                                    <tr style="">
                                                         <td>
                                                             <select class="form-select select2 form-select-sm mt-50"
                                                                 style="width: 250px;" name="items[]" required>
@@ -88,9 +88,15 @@
                                                                 @endforeach
                                                             </select>
                                                         </td>
-                                                        <td>
+                                                        {{-- <td>
                                                             <input type="text" class="form-control form-control-sm"
                                                                 placeholder="Kode" name="codes[]">
+                                                        </td> --}}
+                                                        <td>
+                                                            <input type="text"
+                                                                class="number-format form-control form-control-sm"
+                                                                name="price[]" placeholder="ex. 120000"
+                                                                required>
                                                         </td>
                                                         <td>
                                                             <div class="d-flex text-nowrap align-items-center gap-1">
@@ -107,8 +113,7 @@
                                                         </td>
                                                         <td>
                                                             <button type="button" class="btn btn-danger btn-sm"
-                                                                style="background: red; color:white; width: 30px; height: 30px; margin-left: 10px;"
-                                                                onclick="this.closest('tr').remove()">
+                                                                style="background: red; color:white; width: 30px; height: 30px; margin-left: 10px;">
                                                                 <i class="bx bx-trash"></i>
                                                             </button>
                                                         </td>
@@ -141,8 +146,9 @@
                             <div class="invoice-total-item">
                                 <p class="invoice-total-title">Total: <span class="text-danger">*</span></p>
                                 <div class="form-group">
-                                    <input type="text" class="form-control number-format" name="total" placeholder="ex. 120000"
-                                        required>
+                                    <h3 id="grand-total">0</h3>
+                                    <input type="hidden" class="form-control number-format" name="total" id="total"
+                                        placeholder="ex. 120000" required>
                                 </div>
                             </div>
                         </div>
@@ -157,21 +163,64 @@
     </div>
 
     <script>
+        // Fungsi untuk menghitung total per baris dan total keseluruhan
+        function calculateTotal() {
+            let totalPrice = 0;
+
+            document.querySelectorAll("#table-product tbody tr").forEach(row => {
+                let priceInput = row.querySelector("input[name='price[]']");
+                let amountInput = row.querySelector("input[name='amounts[]']");
+                let price = parseFloat(priceInput.value.replace(/[^0-9]/g, "")) || 0;
+                let amount = parseInt(amountInput.value) || 0;
+
+                let rowTotal = price * amount;
+                totalPrice += rowTotal;
+            });
+
+            document.getElementById("grand-total").textContent = formatRupiah(totalPrice);
+            document.getElementById("total").value = totalPrice;
+        }
+
+        // Event listener untuk input harga dan jumlah
+        document.addEventListener("input", function(event) {
+            if (event.target.matches("input[name='price[]'], input[name='amounts[]']")) {
+                calculateTotal();
+            }
+        });
+
+        // Event listener untuk hapus baris
+        document.addEventListener("click", function(event) {
+            if (event.target.closest(".btn-danger")) {
+                event.target.closest("tr").remove();
+                calculateTotal(); // Hitung ulang setelah baris dihapus
+            }
+        });
+
+        // Format angka menjadi rupiah
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR'
+            }).format(angka);
+        }
+
         $('.select2').select2();
 
         function dupplicateRow() {
-            var table = document.getElementById("table-product");
-            var row = table.rows[1].cloneNode(true);
+            var table = document.getElementById("table-product").getElementsByTagName('tbody')[0];
+            var row = table.rows[0].cloneNode(true);
 
-            // remove select2
-            var select2 = row.querySelectorAll('.select2-container--default');
-            select2.forEach(function(item) {
-                item.remove();
+            // Reset nilai input pada baris baru
+            row.querySelectorAll('input').forEach(input => {
+                input.value = input.name === "amounts[]" ? 1 : null;
             });
 
-            row.style.display = "";
+            // Pastikan select2 berfungsi di baris baru
+            row.querySelectorAll('.select2-container').forEach(select => select.remove());
             table.appendChild(row);
             $('.select2').select2();
+
+            calculateTotal(); // Hitung ulang total setelah menambah baris
         }
 
         function submitForm() {
