@@ -484,6 +484,7 @@
                                     }
                                 })
                             } else {
+                                handlePrint(event.detail[0].payload);
                                 alertTransaction(event.detail[0].route);
                             }
                         } else {
@@ -504,6 +505,20 @@
                         }
                     })
                 })
+
+                const handlePrint = (payload) => {
+
+                    if (window.ReactNativeWebView) {
+                        window.ReactNativeWebView.postMessage(
+                            JSON.stringify({
+                                type: "print",
+                                payload: payload,
+                            })
+                        );
+                    } else {
+                        alert("Cetak hanya didukung di aplikasi native.");
+                    }
+                };
 
                 function alertTransaction(url) {
                     Swal.fire({

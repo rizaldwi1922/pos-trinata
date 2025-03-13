@@ -191,7 +191,7 @@ class PointOfSales extends Component
     public function submitPayment()
     {
         $user = $this->user;
-
+       
         $discountValue = (int) str_replace('.', '', $this->discount_value);
 
         // check for discount
@@ -558,7 +558,9 @@ class PointOfSales extends Component
                 'updated_at' => now()
             ]);
 
-            $payload['amount_profit'] += ($data_product[$i]['active_price'] - $data_product[$i]['buy_price']) * $data_product[$i]['amount'];
+            $product = Product::where('id', $data_product[$i]['product_id'])->first();
+            $modal = $product->modal == 0 ? $data_product[$i]['buy_price'] : $product->modal;
+            $payload['amount_profit'] += ($data_product[$i]['active_price'] - $modal) * $data_product[$i]['amount'];
         }
 
         // discount all
@@ -689,6 +691,7 @@ class PointOfSales extends Component
         $this->dispatch('renderTransaction', [
             'route' => route('admin.transactions.show', $transaction->id) . '?from=pos',
             'afterDeposit' => false,
+            'payload' => $payload,
             'withDeposit' => $withDeposit,
             'depositBalance' => $depositBalance,
             'depositPayload' => $withDeposit ? ($transaction->id . '/' . $payload['customer_id'] . '/' . $depositBalance) : null,
