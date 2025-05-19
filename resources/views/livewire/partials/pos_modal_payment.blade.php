@@ -40,7 +40,7 @@
                                     style="width:100%;border:none;padding:10px">
                                     <option value="1" @if ($transaction_type == '1') selected @endif>Penjualan
                                     </option>
-                                    <option value="2" @if ($transaction_type == '2') selected @endif>Pre-Order
+                                    <option value="2" @if ($transaction_type == '2') selected @endif>Kasbon
                                     </option>
                                 </select>
                             </td>
@@ -50,7 +50,9 @@
                             <th class="border-0 px-0 font-size-lg mb-0 font-size-bold text-primary">
                                 Pilih
                                 Pelanggan
-                                : <br><a href="javascript::void(0)" data-toggle="modal" data-target="#form-customer-modal" onclick="$('#payment-popup').modal('hide');">+ Tambah Pelanggan</a>
+                                : <br><a href="javascript::void(0)" data-toggle="modal"
+                                    data-target="#form-customer-modal" onclick="$('#payment-popup').modal('hide');">+
+                                    Tambah Pelanggan</a>
                             </th>
                             <td
                                 class="border-0 justify-content-end text-primary font-size-lg font-size-bold px-0 font-size-lg mb-0 font-size-bold text-primary">
@@ -100,13 +102,14 @@
                                 <select name="type_payment" style="width:100%;border:none;padding:10px"
                                     wire:model="payment_method_id">
                                     @foreach ($listPaymentMethod as $obj)
-                                        <option value="{{ $obj->id }}">{{ $obj->name }}</option>
+                                        <option value="{{ $obj->id }}" {{ $obj->is_default ? 'selected' : '' }}>
+                                            {{ $obj->name }}</option>
                                     @endforeach
                                 </select>
                             </td>
                         </tr>
 
-                        <tr class="align-items-center">
+                        {{-- <tr class="align-items-center">
                             <th class="border-0 px-0 font-size-lg mb-0 font-size-bold text-primary">
                                 Pilih Diskon: </th>
                             <td
@@ -120,15 +123,15 @@
                                         (Rp)</option>
                                 </select>
                             </td>
-                        </tr>
+                        </tr> --}}
                     </tbody>
                 </table>
                 <div class="form-group row hidden" id="tr_discount_view">
                     <div class="col-md-12 wrap-barcode">
                         <label class="text-body"><b>Besaran Diskon :</b></label>
                         <fieldset class="form-group mb-3">
-                            <input type="text" class="form-control number-format" wire:model="discount_value" id="discount-value"
-                                onchange="calculate()" placeholder="Masukan jumlah besaran diskon">
+                            <input type="text" class="form-control number-format" wire:model="discount_value"
+                                id="discount-value" onchange="calculate()" placeholder="Masukan jumlah besaran diskon">
                         </fieldset>
                     </div>
                 </div>
@@ -136,7 +139,7 @@
                     <div class="col-md-12 wrap-barcode">
                         <label class="text-body"><b>Jumlah Uang Diterima :</b></label>
                         <fieldset class="form-group mb-3">
-                            <input type="text" class="form-control number-format" wire:model="amount_received"
+                            <input type="text" inputmode="numeric" class="form-control number-format" wire:model="amount_received"
                                 name="amount_received" id="money-received" onchange="calculate()"
                                 style="font-size: 18px;">
                         </fieldset>

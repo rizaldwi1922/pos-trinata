@@ -8,36 +8,28 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <div class="card mt-4">
-        <form action="{{ route('admin.purchases.store') }}" class="form-control" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.purchase-returns.store') }}" class="form-control" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="card-header">
                 <h4 class="card-title
-                    d-flex align-items-center">Tambah Pembelian</h4>
+                    d-flex align-items-center">Tambah Retur</h4>
             </div>
 
             <div class="card-body invoice-padding pb-0">
                 <div class="col-12">
                     <div class="row">
-                        <div class="col-6">
-                            <div class="mb-1">
-                                <label class="form-label">
-                                    Invoice ID <span class="text-danger">*</span>
-                                </label>
-                                <input type="text" class="form-control" name="invoice_number" placeholder="Invoice ID"
-                                    required>
-                            </div>
-                        </div>
+                        
                         <div class="col-6">
                             <div class="mb-1">
                                 <label class="form-label">
                                     Supplier <span class="text-danger">*</span>
                                 </label>
-                                <select class="form-select select2 form-select-md"
+                                <select class="form-select form-select-md"
                                     name="supplier" required>
                                     <option value="">Pilih Supplier</option>
-                                    @foreach ($suppliers as $key => $value)
-                                        <option value="{{ $key }}">
-                                            {{ $value }}
+                                    @foreach ($suppliers as $val)
+                                        <option value="{{ $val->id }}">
+                                            {{ $val->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -46,9 +38,9 @@
                         <div class="col-6">
                             <div class="mb-1">
                                 <label class="form-label">
-                                    Jatuh Tempo
+                                    Tanggal Retur
                                 </label>
-                                <input type="date" class="form-control" name="due_date" placeholder="Jatuh Tempo">
+                                <input type="date" class="form-control" name="retur_date" placeholder="Tanggal Retur">
                             </div>
                         </div>
                     </div>
@@ -69,7 +61,6 @@
                                                         <th>Varian / Bahan <span class="text-danger">*</span></th>
                                                         <th>Harga</th>
                                                         <th>Jumlah <span class="text-danger">*</span></th>
-                                                        <th>Kadaluwarsa</th>
                                                         <th>Aksi</th>
                                                     </tr>
                                                 </thead>
@@ -80,14 +71,9 @@
                                                                 style="width: 250px;" name="items[]" required>
                                                                 <option value="">Pilih Varian / Bahan
                                                                 </option>
-                                                                @foreach ($variants as $key => $value)
-                                                                    <option value="{{ $key }}">
-                                                                        V - {{ $value }}
-                                                                    </option>
-                                                                @endforeach
-                                                                @foreach ($ingredients as $key => $value)
-                                                                    <option value="{{ $key }}">
-                                                                        I - {{ $value }}
+                                                                @foreach ($variants as $value)
+                                                                    <option value="{{ $value->id }}" data-price="{{ $value->unit_price }}">
+                                                                        {{ $value->name }}
                                                                     </option>
                                                                 @endforeach
                                                             </select>
@@ -109,10 +95,6 @@
                                                                     placeholder="Jumlah" name="amounts[]" value="1"
                                                                     required>
                                                             </div>
-                                                        </td>
-                                                        <td>
-                                                            <input type="date" class="form-control form-control-sm"
-                                                                placeholder="Kadaluwarsa" name="expiry_dates[]">
                                                         </td>
                                                         <td>
                                                             <button type="button" class="btn btn-danger btn-sm"
@@ -177,6 +159,7 @@
                 let amount = parseInt(amountInput.value) || 0;
 
                 let rowTotal = price * amount;
+                console.log(price);
                 totalPrice += rowTotal;
             });
 
@@ -227,19 +210,30 @@
         }
 
         function submitForm() {
-            var invoiceNumber = document.querySelector('input[name="invoice_number"]').value;
-            var grandTotal = document.querySelector('input[name="total"]').value;
-            if (invoiceNumber == '' || grandTotal == '') {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Perhatian!',
-                    text: 'Field tidak boleh kosong!',
-                });
-                return;
-            }
+            // var grandTotal = document.querySelector('input[name="total"]').value;
+            // if (invoiceNumber == '' || grandTotal == '') {
+            //     Swal.fire({
+            //         icon: 'info',
+            //         title: 'Perhatian!',
+            //         text: 'Field tidak boleh kosong!',
+            //     });
+            //     return;
+            // }
 
             document.querySelector('form').submit();
         }
+
+        // Add after $('.select2').select2();
+        $(document).on('change', 'select[name="items[]"]', function() {
+            const selectedOption = $(this).find(':selected');
+            const price = selectedOption.data('price');
+            const priceInput = $(this).closest('tr').find('input[name="price[]"]');
+            
+            if(price) {
+                priceInput.val(price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."));
+                calculateTotal();
+            }
+        });
     </script>
 
 @endsection

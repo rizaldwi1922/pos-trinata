@@ -8,6 +8,8 @@ use App\Models\Purchase;
 use App\Models\PurchasePayment;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\JournalEntry;
+use App\Models\JournalDetail;
 
 class PurchasePaymentController extends Controller
 {
@@ -43,13 +45,36 @@ class PurchasePaymentController extends Controller
 
         $user = auth()->user();
 
+        $journalHead = JournalEntry::create([
+            'store_id' => $user->store_id,
+            'related_table' => 'purchase_payments',
+            'description' => 'Pembayaran utang',
+        ]);
+        $total = (int) str_replace('.', '', $request->amount);
+        // piutang usaha
+        JournalDetail::create([
+            'store_id' => $user->store_id,
+            'journal_id' => $journalHead->id,
+            'account_code' => '2010',
+            'debit' => $total,
+        ]);
+        // kas
+        JournalDetail::create([
+            'store_id' => $user->store_id,
+            'journal_id' => $journalHead->id,
+            'account_code' => '1010',
+            'credit' => $total,
+        ]);
+
         PurchasePayment::create([
             'purchase_id' => $purchase->id,
             'user_id' => $user->id,
             'payment_method_id' => $request->payment_method_id,
-            'amount' => (int) str_replace('.', '', $request->amount),
+            'amount' => $total,
             'date' => $request->date,
             'note' => $request->note,
+            'store_id' => $user->store_id,
+            'journal_id' => $journalHead->id,
         ]);
 
         Alert::success('Berhasil', 'Pembayaran berhasil disimpan');

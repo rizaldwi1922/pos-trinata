@@ -168,13 +168,25 @@
                                                     @endif
 
                                                     @if ($product['sell_retail_price'])
-                                                        <select style="width:100%; margin-bottom: 10px;"
-                                                            wire:change="change_price('{{ $product['variant_id'] }}', {{ $product['product_id'] }}, $event.target.value)">
-                                                            <option value="{{ $product['sell_price'] }}" selected>
-                                                                Normal: @currency($product['sell_price'])</option>
-                                                            <option value="{{ $product['sell_retail_price'] }}">Grosir:
-                                                                @currency($product['sell_retail_price'])</option>
-                                                        </select>
+                                                        <div class="price-options" style="margin-bottom: 10px;">
+                                                            <div class="form-check">
+                                                                <input type="radio" 
+                                                                    class="form-check-input" 
+                                                                    name="price_{{ $product['product_id'] }}" 
+                                                                    value="{{ $product['sell_price'] }}"
+                                                                    wire:change="change_price('{{ $product['variant_id'] }}', {{ $product['product_id'] }}, $event.target.value)"
+                                                                    checked>
+                                                                <label class="form-check-label">Normal: @currency($product['sell_price'])</label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input type="radio" 
+                                                                    class="form-check-input" 
+                                                                    name="price_{{ $product['product_id'] }}" 
+                                                                    value="{{ $product['sell_retail_price'] }}"
+                                                                    wire:change="change_price('{{ $product['variant_id'] }}', {{ $product['product_id'] }}, $event.target.value)">
+                                                                <label class="form-check-label">Grosir: @currency($product['sell_retail_price'])</label>
+                                                            </div>
+                                                        </div>
                                                     @endif
                                                 </div>
                                                 <div class="count-item-checkout">
@@ -182,10 +194,10 @@
                                                     <input type="number" class="total-chart-item"
                                                         wire:change="update_item_product('{{ $product['variant_id'] }}', '{{ $product['product_id'] }}', '{{ $product['ingredient_id'] }}', $event.target.value)"
                                                         value="{{ $product['amount'] }}">
-                                                    <div class="btn btn-discount @if (!empty($product['discount_type'])) red @endif"
+                                                    {{-- <div class="btn btn-discount @if (!empty($product['discount_type'])) red @endif"
                                                         wire:click="open_discount_modal({{ $key }})">
                                                         <i class="mdi mdi-percent"></i>
-                                                    </div>
+                                                    </div> --}}
                                                 </div>
                                                 <div class="sumof-item-checkout">
                                                     @if (!empty($product['discount_type']))
@@ -484,8 +496,8 @@
                                     }
                                 })
                             } else {
-                                handlePrint(event.detail[0].payload);
-                                alertTransaction(event.detail[0].route);
+                                console.log(event)
+                                alertTransaction(event.detail[0].route, event.detail[0]);
                             }
                         } else {
                             Swal.fire({
@@ -507,7 +519,7 @@
                 })
 
                 const handlePrint = (payload) => {
-
+                    console.log(payload);
                     if (window.ReactNativeWebView) {
                         window.ReactNativeWebView.postMessage(
                             JSON.stringify({
@@ -520,7 +532,7 @@
                     }
                 };
 
-                function alertTransaction(url) {
+                function alertTransaction(url, payload = null) {
                     Swal.fire({
                         title: 'Transaksi Berhasil',
                         text: 'Apakah anda ingin mencetak struk?',
@@ -532,8 +544,9 @@
                         cancelButtonText: 'Tidak'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            let win = window.open(url, '_blank');
-                            win.focus();
+                            // let win = window.open(url, '_blank');
+                            // win.focus();
+                            handlePrint(payload);
                         }
                     })
                 }

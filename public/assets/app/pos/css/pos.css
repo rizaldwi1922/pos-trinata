@@ -313,7 +313,7 @@ input[type="number"] {
 
 .selected-item {
     width: 95%;
-    height: 90vh;
+    height: 85vh;
     border-left: 2px solid rgb(194, 194, 194);
     margin-left: 5%;
     overflow: hidden;
@@ -614,7 +614,7 @@ input[type="number"] {
     }
 
     .sumof-all-item-checkout{
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         margin-top: 18px;
     }
 }
@@ -745,7 +745,7 @@ input[type="number"] {
         padding: 0px 8px;
         height: 20px;
         line-height: 20px;
-        margin-bottom: 4px;
+        margin-bottom: 15x;
     }
     
 

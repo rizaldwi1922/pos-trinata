@@ -54,6 +54,18 @@ class Menu extends Model
                 'route' => route('admin.expenses.index'),
             ],
             [
+                'name' => 'Piutang Customer',
+                'permission' => 'expenses',
+                'icon' => 'bx bx-credit-card-front',
+                'route' => route('admin.receivables.index'),
+            ],
+            [
+                'name' => 'Retur Supplier',
+                'permission' => 'expenses',
+                'icon' => 'bx bx-repeat',
+                'route' => route('admin.purchase-returns.index'),
+            ],
+            [
                 'name' => 'Persediaan',
                 'icon' => 'bx bx-grid-alt',
                 'route' => 'javascript:void(0)',

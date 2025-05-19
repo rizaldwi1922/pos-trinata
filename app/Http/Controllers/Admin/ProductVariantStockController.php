@@ -7,6 +7,8 @@ use App\Models\ProductStock;
 use App\Models\ProductVariant;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\JournalEntry;
+use App\Models\JournalDetail;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class ProductVariantStockController extends Controller
@@ -59,6 +61,26 @@ class ProductVariantStockController extends Controller
         $variant = ProductVariant::find($request->variant_id);
 
         $product = $variant->product;
+        $total = $request->amount_added * $variant->buy_price;
+        $journalHead = JournalEntry::create([
+            'store_id' => $user->store_id,
+            'related_table' => 'product_stocks',
+            'description' => 'Tambah Stock Barang',
+        ]);
+        // persediaan
+        JournalDetail::create([
+            'store_id' => $user->store_id,
+            'journal_id' => $journalHead->id,
+            'account_code' => '1030',
+            'debit' => $total,
+        ]);
+        // modal
+        JournalDetail::create([
+            'store_id' => $user->store_id,
+            'journal_id' => $journalHead->id,
+            'account_code' => '3100',
+            'credit' => $total,
+        ]);
 
         ProductStock::create([
             'store_id' => $user->store_id,
@@ -70,6 +92,8 @@ class ProductVariantStockController extends Controller
             'amount_added' => $request->amount_added,
             'amount_available' => $request->amount_added,
             'expired_at' => $request->expiry_date ? Carbon::parse($request->expiry_date) : null,
+            'journal_id' => $journalHead->id,
+            'unit_price' => $variant->buy_price,
         ]);
 
         Alert::success('Berhasil', 'Stok berhasil ditambahkan');

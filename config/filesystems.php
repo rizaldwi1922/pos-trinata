@@ -55,6 +55,15 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
         ],
+        'r2' => [
+            'driver' => 's3',
+            'key' => env('R2_ACCESS_KEY_ID'), // Kunci akses
+            'secret' => env('R2_SECRET_ACCESS_KEY'), // Kunci rahasia
+            'region' => 'auto', // R2 tidak memerlukan region spesifik
+            'bucket' => env('R2_BUCKET'), // Nama bucket Anda
+            'url' => 'https://storage.kodekeris.com', // URL bucket Anda
+            'endpoint' => env('R2_ENDPOINT'), // Ganti <account_id> dengan ID akun Cloudflare Anda
+        ],
 
     ],
 

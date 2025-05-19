@@ -24,6 +24,8 @@ use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\IngredientController;
 use App\Http\Controllers\Admin\IngredientStockController;
 use App\Http\Controllers\Admin\ProductVariantStockController;
+use App\Http\Controllers\Admin\PurchaseReturnController;
+use App\Http\Controllers\Admin\ReceivableController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\Super\RoleController;
 use App\Http\Controllers\Super\PermissionController;
@@ -116,6 +118,8 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
         Route::resource('suppliers', SupplierController::class);
         Route::resource('payment-methods', PaymentMethodController::class);
         Route::resource('daily-stocks', DailyStockController::class);
+        Route::resource('receivables', ReceivableController::class);
+        Route::resource('purchase-returns', PurchaseReturnController::class);
     });
     Route::get('transaction/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
     Route::post('transation/delete/multiple', [TransactionController::class, 'deleteMultiple'])->name('transactions.delete.multiple');

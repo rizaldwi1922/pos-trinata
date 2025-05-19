@@ -87,7 +87,8 @@ class ProductController extends Controller
 
             $data['image'] = $request->imageUrl;
         } else if ($request->hasFile('image')) {
-            $data['image'] = $this->uploadFile($request->file('image'), 'products');
+            $filePath = $request->file('image')->store('products', 'r2');
+            $data['image'] = $filePath; //$this->uploadFile($request->file('image'), 'products');
         }
 
         if ($request->has('is_ingredient')) {
@@ -219,7 +220,8 @@ class ProductController extends Controller
 
             $data['image'] = $request->imageUrl;
         } else if ($request->hasFile('image')) {
-            $data['image'] = $this->uploadFile($request->file('image'), 'products');
+            $filePath = $request->file('image')->store('products', 'r2');
+            $data['image'] = $filePath;//$this->uploadFile($request->file('image'), 'products');
         }
 
         if ($request->has('ingredient_ids')) {
@@ -283,6 +285,7 @@ class ProductController extends Controller
                     'store_id' => $user->store_id,
                     'product_id' => $product->id,
                     'unit_id' => $request->units[$key],
+                    'purchase_unit_id' => $request->unit_purchase[$key],
                     'buy_price' => (int) str_replace('.', '', $request->buy_prices[$key]),
                     'sell_price' => (int) str_replace('.', '', $request->sell_prices[$key]),
                     'sell_retail_price' => (int) str_replace('.', '', $request->sell_retail_prices[$key]),

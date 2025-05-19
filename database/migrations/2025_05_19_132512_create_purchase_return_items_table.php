@@ -12,15 +12,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('journal_details', function (Blueprint $table) {
+        Schema::create('purchase_return_items', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('store_id')->unsigned();
-            $table->unsignedBigInteger('journal_id');
-            $table->string('account_code');
-            $table->decimal('debit', 15, 2)->default(0);
-            $table->decimal('credit', 15, 2)->default(0);
-            $table->foreign('account_code')->references('code')->on('journal_accounts');
-            $table->foreign('journal_id')->references('id')->on('journal_entrys');
+            $table->unsignedBigInteger('store_id');
+            $table->unsignedBigInteger('purchase_return_id');
+            $table->unsignedBigInteger('product_variant_id');
+            $table->integer('quantity');
+            $table->decimal('price', 15, 2);
+            $table->foreign('purchase_return_id')->references('id')->on('purchase_returns');
+            $table->foreign('product_variant_id')->references('id')->on('product_variants');
             $table->foreign('store_id')->references('id')->on('stores');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->nullable();
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('journal_details');
+        Schema::dropIfExists('purchase_return_items');
     }
 };

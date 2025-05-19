@@ -18,8 +18,13 @@ use App\Models\ProductVariant;
 use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\Shift;
+use App\Models\JournalEntry;
+use App\Models\JournalDetail;
+use App\Models\Receivable;
+use App\Models\Store;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Illuminate\Support\Facades\Storage;
 
 class PointOfSales extends Component
 {
@@ -147,6 +152,12 @@ class PointOfSales extends Component
         );
         $query_product->orderBy('name', 'ASC');
         $products = $query_product->get();
+        foreach($products as $prod){
+            if($prod->image && !str_contains($prod->image, 'upload')){
+                $path = $prod->image;
+                $prod->image = Storage::disk('r2')->temporaryUrl($path, now()->addMinutes(5));
+            }   
+        }
 
         if (empty($this->all_products)) {
             $this->all_products = $products;
@@ -174,8 +185,8 @@ class PointOfSales extends Component
 
         $this->listPaymentMethod = PaymentMethod::where('store_id', $user->store_id)->orderBy('name', 'ASC')->get();
 
-        $this->payment_method_id = isset($this->listPaymentMethod[0]) ? $this->listPaymentMethod[0]->id : null;
-
+        $defaultPayment = PaymentMethod::where('store_id', $user->store_id)->where('is_default', true)->first();
+        $this->payment_method_id = $defaultPayment ? $defaultPayment->id : null;
         $this->stockMinimum = (int) Setting::where('key', 'alert_stock_minimum')->where('store_id', $user->store_id)->value('value');
 
         return view('livewire.point-of-sales', [
@@ -191,7 +202,8 @@ class PointOfSales extends Component
     public function submitPayment()
     {
         $user = $this->user;
-       
+        $store = Store::where('id', $user->store_id)->first();
+
         $discountValue = (int) str_replace('.', '', $this->discount_value);
 
         // check for discount
@@ -243,7 +255,7 @@ class PointOfSales extends Component
         $total_discount = 0;
         for ($i = 0; $i < sizeof($data_product); $i++) {
             $payload['total_items'] += $data_product[$i]['amount'];
-
+            $total_modal = 0;
             $total_price += $data_product[$i]['active_price'] * $data_product[$i]['amount'];
 
             $dStock = [];
@@ -251,18 +263,6 @@ class PointOfSales extends Component
                 $variant = ProductVariant::find($data_product[$i]['variant_id']);
                 $unit = ProductUnit::find($variant->unit_id);
                 $name = $data_product[$i]['name'] . ' (' . $variant->measurement . ' ' . $unit->name . ')';
-
-                $payload['data'][$i] = [
-                    'product_id' => $data_product[$i]['product_id'],
-                    'variant_id' => $data_product[$i]['variant_id'],
-                    'name' => $name,
-                    'buy_price' => $data_product[$i]['buy_price'],
-                    'sell_price' => $data_product[$i]['active_price'],
-                    'discount_type' => $data_product[$i]['discount_type'],
-                    'discount_value' => $data_product[$i]['discount_value'],
-                    'amount' => $data_product[$i]['amount'],
-                    'amount_retur' => 0,
-                ];
 
                 if (!empty($data_product[$i]['discount_type']) && !empty($data_product[$i]['discount_value'])) {
                     $discount = 0;
@@ -276,7 +276,7 @@ class PointOfSales extends Component
                 }
 
                 // if transaction type is sale
-                if ($this->transaction_type == 1) {
+                //if ($this->transaction_type == 1) {
                     $is_stock_debt = $data_product[$i]['amount'];
                     $availableStock = ProductStock::where('store_id', $user->store_id)
                         ->where('product_id', $data_product[$i]['product_id'])
@@ -299,7 +299,7 @@ class PointOfSales extends Component
                                 $query->whereNull('expired_at')
                                     ->orWhere('expired_at', '>', now());
                             })
-                            ->orderBy('expired_at', 'ASC')
+                            ->orderBy('created_at', 'ASC')
                             ->first();
 
                         if (!$stock) {
@@ -307,6 +307,27 @@ class PointOfSales extends Component
                             $txt_error = 'Stock ' . $name . ' tidak mencukupi';
                             break;
                         }
+                        $total_modal = number_format($stock->unit_price, 0, ',', '.');
+                        $total_modal = (int) str_replace('.', '', $total_modal);
+
+                        $activePrice = (int)$data_product[$i]['active_price'];
+                        $grosir = true;
+                        if ($data_product[$i]['sell_price'] == $activePrice) {
+                            $grosir = false;
+                        }
+                        //dd($total_modal);
+                        $payload['data'][$i] = [
+                            'product_id' => $data_product[$i]['product_id'],
+                            'variant_id' => $data_product[$i]['variant_id'],
+                            'name' => $name,
+                            'buy_price' => $total_modal,
+                            'sell_price' => $activePrice,
+                            'discount_type' => $data_product[$i]['discount_type'],
+                            'discount_value' => $data_product[$i]['discount_value'],
+                            'amount' => $data_product[$i]['amount'],
+                            'amount_retur' => 0,
+                            'grosir' => $grosir,
+                        ];
 
                         $is_stock_debt -= $stock->amount_available;
                         $availableStock -= $stock->amount_available;
@@ -319,7 +340,7 @@ class PointOfSales extends Component
                             $stock->update();
                         }
                     }
-                }
+                //}
             } else if (!empty($data_product[$i]['ingredient_id'])) {
                 $ingredient = ProductIngredient::find($data_product[$i]['ingredient_id']);
                 $unit = ProductUnit::find($ingredient->unit_id);
@@ -559,7 +580,11 @@ class PointOfSales extends Component
             ]);
 
             $product = Product::where('id', $data_product[$i]['product_id'])->first();
-            $modal = $product->modal == 0 ? $data_product[$i]['buy_price'] : $product->modal;
+            $modal = $product->modal == 0 ? $total_modal : $product->modal;
+            // if($data_product[$i]['product_id'] == 30){
+            //      dd($product->modal);
+            // }
+
             $payload['amount_profit'] += ($data_product[$i]['active_price'] - $modal) * $data_product[$i]['amount'];
         }
 
@@ -603,7 +628,7 @@ class PointOfSales extends Component
             // for now, only allow pre-order
             if ($this->transaction_type == 1) {
                 $is_success = false;
-                $txt_error = 'Hutang hanya bisa dilakukan untuk transaksi pre-order';
+                $txt_error = 'Hutang hanya bisa dilakukan untuk transaksi kasbon';
             }
         }
 
@@ -655,8 +680,21 @@ class PointOfSales extends Component
 
         // check discount
         $payload['amount_profit'] = $payload['amount_profit'] - $total_discount;
-
+        $countIncome = $this->countIncome($payload);
+       // dd($countIncome, $payload);
+        $journal = $this->createJournal($countIncome, $payload);
+        //dd($payload, $countIncome, $data_product);
+        $payload['journal_id'] = $journal->id;
         $transaction = Transaction::create($payload);
+
+        if ($payload['type'] == 2) {
+            Receivable::create([
+                'store_id' => $user->store_id,
+                'transaction_id' => $transaction->id,
+                'customer_id' => $payload['customer_id'],
+                'total_due' => $payload['amount_total'],
+            ]);
+        }
 
         // update for customer balance
         if ($customer_balance_log) {
@@ -665,6 +703,8 @@ class PointOfSales extends Component
             $customer->balance = $customer_balance_log['balance_after'];
             $customer->update();
         }
+
+      //  dd($payload, $total_modal);
 
         DB::commit();
 
@@ -692,10 +732,103 @@ class PointOfSales extends Component
             'route' => route('admin.transactions.show', $transaction->id) . '?from=pos',
             'afterDeposit' => false,
             'payload' => $payload,
+            'store' => $store,
+            'transaction_type' => $this->transaction_type,
             'withDeposit' => $withDeposit,
             'depositBalance' => $depositBalance,
             'depositPayload' => $withDeposit ? ($transaction->id . '/' . $payload['customer_id'] . '/' . $depositBalance) : null,
         ]);
+    }
+
+    private function countIncome($payload)
+    {
+        $hppGrosir = 0;
+        $hppEceran = 0;
+        $incomeGrosir = 0;
+        $incomeEceran = 0;
+        foreach ($payload['data'] as $product) {
+            if (!$product['grosir']) {
+                $hppEceran += $product['amount'] * $product['buy_price'];
+                $incomeEceran += $product['amount'] * $product['sell_price'];
+            } else {
+                $hppGrosir += $product['amount'] * $product['buy_price'];
+                $incomeGrosir += $product['amount'] * $product['sell_price'];
+            }
+        }
+        return [
+            'grosir' => $hppGrosir,
+            'income_grosir' => $incomeGrosir,
+            'income_eceran' => $incomeEceran,
+            'eceran' => $hppEceran,
+        ];
+    }
+
+    public function createJournal($countIncome, $payload)
+    {
+       // dd($countIncome, $payload);
+        $store_id = $this->user->store_id;
+        $journalHead = JournalEntry::create([
+            'store_id' => $store_id,
+            'related_table' => 'transactions',
+            'description' => 'Penjualan Barang ' . ($payload['type'] == 1 ? 'Lunas' : 'Kasbon'),
+        ]);
+        if ($payload['type'] == 1) {
+            JournalDetail::create([
+                'store_id' => $store_id,
+                'journal_id' => $journalHead->id,
+                'account_code' => '1010',
+                'debit' => $payload['amount_total'],
+            ]);
+        } else {
+            JournalDetail::create([
+                'store_id' => $store_id,
+                'journal_id' => $journalHead->id,
+                'account_code' => '1020',
+                'debit' => $payload['amount_total'],
+            ]);
+        }
+
+        if ($countIncome['income_eceran'] > 0) {
+            JournalDetail::create([
+                'store_id' => $store_id,
+                'journal_id' => $journalHead->id,
+                'account_code' => '4010',
+                'credit' => $countIncome['income_eceran'],
+            ]);
+        }
+        if ($countIncome['income_grosir'] > 0) {
+            JournalDetail::create([
+                'store_id' => $store_id,
+                'journal_id' => $journalHead->id,
+                'account_code' => '4020',
+                'credit' => $countIncome['income_grosir'],
+            ]);
+        }
+        if ($countIncome['eceran'] > 0) {
+            JournalDetail::create([
+                'store_id' => $store_id,
+                'journal_id' => $journalHead->id,
+                'account_code' => '5010',
+                'debit' => $countIncome['eceran'],
+            ]);
+        }
+        if ($countIncome['grosir'] > 0) {
+            JournalDetail::create([
+                'store_id' => $store_id,
+                'journal_id' => $journalHead->id,
+                'account_code' => '5020',
+                'debit' => $countIncome['grosir'],
+            ]);
+        }
+
+        JournalDetail::create([
+            'store_id' => $store_id,
+            'journal_id' => $journalHead->id,
+            'account_code' => '1030',
+            'credit' => $countIncome['grosir'] + $countIncome['eceran'],
+        ]);
+
+        return $journalHead;
     }
 
     public function submit_deposit($payload)

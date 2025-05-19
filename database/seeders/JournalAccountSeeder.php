@@ -58,30 +58,36 @@ class JournalAccountSeeder extends Seeder
             ],
             [
                 'code' => '5010',
-                'name' => 'Harga Pokok Penjualan (HPP)',
+                'name' => 'Harga Pokok Penjualan (HPP) Eceran',
                 'type' => 'EXPENSE',
-                'description' => 'Digunakan untuk mencatat biaya barang yang dijual',
+                'description' => 'Digunakan untuk mencatat biaya barang yang dijual Eceran',
             ],
             [
                 'code' => '5020',
+                'name' => 'Harga Pokok Penjualan (HPP) Grosir',
+                'type' => 'EXPENSE',
+                'description' => 'Digunakan untuk mencatat biaya barang yang dijual Grosir',
+            ],
+            [
+                'code' => '5030',
                 'name' => 'Beban Sewa',
                 'type' => 'EXPENSE',
                 'description' => 'Digunakan untuk mencatat biaya sewa toko',
             ],
             [
-                'code' => '5030',
+                'code' => '5040',
                 'name' => 'Beban Listrik',
                 'type' => 'EXPENSE',
                 'description' => 'Digunakan untuk mencatat biaya listrik toko',
             ],
             [
-                'code' => '5040',
+                'code' => '5050',
                 'name' => 'Beban Gaji Pegawai',
                 'type' => 'EXPENSE',
                 'description' => 'Digunakan untuk mencatat gaji karyawan toko',
             ],
             [
-                'code' => '5050',
+                'code' => '5060',
                 'name' => 'Beban Transportasi',
                 'type' => 'EXPENSE',
                 'description' => 'Digunakan untuk mencatat biaya pengiriman barang',
@@ -91,6 +97,12 @@ class JournalAccountSeeder extends Seeder
                 'name' => 'Beban Lain-lain',
                 'type' => 'EXPENSE',
                 'description' => 'Digunakan untuk mencatat pengeluaran yang tidak termasuk dalam kategori beban lainnya',
+            ],
+            [
+                'code' => '3100',
+                'name' => 'Modal',
+                'type' => 'EQUITY',
+                'description' => 'Digunakan untuk mencatat modal awal',
             ]
         ]);
         

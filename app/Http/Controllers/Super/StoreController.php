@@ -62,6 +62,7 @@ class StoreController extends Controller
             'store_id' => $store->id,
             'name' => $request->user_name,
             'email' => $request->user_email,
+            'address' => $request->address,
             'password' => bcrypt($request->user_password),
             'email_verified_at' => now(),
         ]);
@@ -94,7 +95,7 @@ class StoreController extends Controller
 
         $store = Store::find($id);
 
-        $data = $request->only('name', 'code');
+        $data = $request->only('name', 'code', 'address');
 
         if ($request->hasFile('image')) {
             $data['image'] = $this->uploadFile($request->file('image'), 'stores');

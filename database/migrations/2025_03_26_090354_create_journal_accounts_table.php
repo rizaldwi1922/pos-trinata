@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('code')->unique();
             $table->string('name')->unique();
-            $table->enum('type', ['ASSET', 'LIABILITY', 'REVENUE', 'EXPENSE']);
+            $table->enum('type', ['ASSET', 'LIABILITY', 'REVENUE', 'EXPENSE', 'EQUITY']);
             $table->string('description');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->nullable();

@@ -46,6 +46,7 @@ class PaymentMethodController extends Controller
 
         $data = $request->only('name', 'code');
         $data['is_cash'] = $request->has('is_cash') && $request->is_cash;
+        $data['is_default'] = $request->has('is_default') && $request->is_default;
         $data['store_id'] = $user->store_id;
 
         PaymentMethod::create($data);
@@ -75,6 +76,7 @@ class PaymentMethodController extends Controller
 
         $data = $request->only('name', 'code');
         $data['is_cash'] = $request->has('is_cash') && $request->is_cash;
+        $data['is_default'] = $request->has('is_default') && $request->is_default;
 
         $paymentMethod->update($data);
 

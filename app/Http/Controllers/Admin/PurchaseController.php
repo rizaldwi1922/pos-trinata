@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\JournalEntry;
+use App\Models\JournalDetail;
 
 class PurchaseController extends Controller
 {
@@ -77,12 +79,35 @@ class PurchaseController extends Controller
         DB::beginTransaction();
 
         try {
+            $total = (int) str_replace('.', '', $request->total);
+            $journalHead = JournalEntry::create([
+                'store_id' => $user->store_id,
+                'related_table' => 'purchases',
+                'description' => 'Pembelian Barang',
+            ]);
+            // persediaan barang
+            JournalDetail::create([
+                'store_id' => $user->store_id,
+                'journal_id' => $journalHead->id,
+                'account_code' => '1030',
+                'debit' => $total,
+            ]);
+            // utang usaha
+            JournalDetail::create([
+                'store_id' => $user->store_id,
+                'journal_id' => $journalHead->id,
+                'account_code' => '2010',
+                'credit' => $total,
+            ]);
+
             $purchase = Purchase::create([
                 'store_id' => $user->store_id,
                 'user_id' => $user->id,
                 'invoice_number' => $request->invoice_number,
                 'due_date' => Carbon::parse($request->due_date),
-                'total' => (int) str_replace('.', '', $request->total),
+                'total' => $total,
+                'journal_id' => $journalHead->id,
+                'supplier_id' => $request->supplier
             ]);
 
             if (count(array_filter($request->items)) == 0) {
@@ -98,7 +123,7 @@ class PurchaseController extends Controller
                 //     continue;
                 // }
 
-                if ((!$key || !$request->suppliers[$index] || !$request->amounts[$index])) {
+                if ((!$key || !$request->supplier || !$request->amounts[$index])) {
                     DB::rollBack();
 
                     Alert::error('Error', 'Item pembelian tidak valid');
@@ -117,7 +142,7 @@ class PurchaseController extends Controller
                         'user_id' => $user->id,
                         'item_price' => $itemPrice,
                         'unit_price' => $itemPrice / $variant->factor,
-                        'supplier_id' => $request->suppliers[$index],
+                        'supplier_id' => $request->supplier,
                         'purchase_id' => $purchase->id,
                         'code' => $request->codes[$index] ?? 'STV-' . Carbon::now()->format('YmdHis'),
                         'amount_added' => $request->amounts[$index] * $variant->factor,
@@ -133,7 +158,7 @@ class PurchaseController extends Controller
                         'user_id' => $user->id,
                         'item_price' => $itemPrice,
                         'unit_price' => $itemPrice / $ingredient->factor,
-                        'supplier_id' => $request->suppliers[$index],
+                        'supplier_id' => $request->supplier,
                         'purchase_id' => $purchase->id,
                         'code' => $request->codes[$index] ?? 'STB-' . Carbon::now()->format('YmdHis'),
                         'amount_added' => $request->amounts[$index] * $ingredient->factor,

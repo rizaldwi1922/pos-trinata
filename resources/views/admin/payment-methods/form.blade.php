@@ -39,6 +39,14 @@
                 </div>
 
                 <div class="mb-3">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="is_default" name="is_default"
+                            {{ isset($paymentMethod) && $paymentMethod->is_default ? 'checked' : '' }}>
+                        <label class="form-check-label" for="is_cash">Jadikan Default</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
                     <button type="submit" class="btn btn-default">Simpan</button>
                 </div>
             </div>

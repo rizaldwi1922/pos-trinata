@@ -5,14 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class JournalDetail extends Model
+class Receivable extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'journal_id',
         'store_id',
-        'account_code',
-        'debit',
-        'credit',
+        'transaction_id',
+        'customer_id',
+        'total_due',
+        'total_paid',
+        'due_date',
+        'status',
     ];
 }
