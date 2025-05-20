@@ -62,7 +62,7 @@ class ProductController extends Controller
             'amounts' => 'required',
             'code' => 'nullable',
             'codes' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'imageUrl' => 'nullable:url',
         ]);
 
@@ -195,7 +195,7 @@ class ProductController extends Controller
             'amounts' => 'nullable',
             'code' => 'nullable',
             'codes' => 'nullable',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'imageUrl' => 'nullable:url',
             'variant_ids' => 'nullable',
             'ingredient_ids' => 'nullable',
