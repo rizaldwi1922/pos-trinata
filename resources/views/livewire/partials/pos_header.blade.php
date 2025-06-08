@@ -2,14 +2,24 @@
     <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col-6 ">
-                <div class="d-flex align-items-center">
-                    <div class="greeting-text">
+                <div class="">
+                    <div class="greeting-text d-flex align-items-center">
+                        @if($user->roles->first()->id == 1 || $user->roles->first()->id == 3)
+                        <a href="/admin/dashboard" class="btn btn-primary btn-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+                            </svg>
+                            Kembali</a>
+                        @endif
                         <h3 class="card-label mb-0 font-weight-bold text-primary">
-                            {{ \App\Models\Store::find($user->store_id)->name }}</h3>
+                            {{ \App\Models\Store::find($user->store_id)->name }}
+                        </h3>
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-6 order-lg-last order-second">
                 <div class="topbar justify-content-end">
                     <div class="dropdown" onclick="location.reload();">
@@ -53,7 +63,8 @@
                         }
                     </script>
 
-                    <div class="dropdown" @if (!$shift) onclick="startShift()" @else wire:click="shift_out" @endif>
+                    <div class="dropdown"
+                        @if (!$shift) onclick="startShift()" @else wire:click="shift_out" @endif>
                         <div id="btn-shift-out" class="topbar-item">
                             <div class="btn btn-icon w-auto h-auto btn-clean d-flex align-items-center py-0 mr-3">
                                 <span class="symbol symbol-35 symbol-light-success">
@@ -91,17 +102,17 @@
 
                     @desktop
                     @elsedesktop
-                    <div class="dropdown" onclick="location.href='opencamera:'" id="camera-scanner">
-                        <div id="btn-history-transaction" class="topbar-item">
-                            <div class="btn btn-icon w-auto h-auto btn-clean d-flex align-items-center py-0 mr-3">
-                                <span class="symbol symbol-35 symbol-light-success">
-                                    <span class="symbol-label" style="background: red;font-size:22px;color:white;">
-                                        <i class="mdi mdi-barcode-scan"></i>
+                        <div class="dropdown" onclick="location.href='opencamera:'" id="camera-scanner">
+                            <div id="btn-history-transaction" class="topbar-item">
+                                <div class="btn btn-icon w-auto h-auto btn-clean d-flex align-items-center py-0 mr-3">
+                                    <span class="symbol symbol-35 symbol-light-success">
+                                        <span class="symbol-label" style="background: red;font-size:22px;color:white;">
+                                            <i class="mdi mdi-barcode-scan"></i>
+                                        </span>
                                     </span>
-                                </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     @enddesktop
                 </div>
             </div>
