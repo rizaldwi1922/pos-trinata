@@ -578,14 +578,15 @@ class PointOfSales extends Component
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
+            $payload['amount_profit'] += ($data_product[$i]['active_price'] - $data_product[$i]['buy_price']) * $data_product[$i]['amount'];
 
-            $product = Product::where('id', $data_product[$i]['product_id'])->first();
-            $modal = $product->modal == 0 ? $total_modal : $product->modal;
+            //$product = Product::where('id', $data_product[$i]['product_id'])->first();
+            //$modal = $product->modal == 0 ? $total_modal : $product->modal;
             // if($data_product[$i]['product_id'] == 30){
             //      dd($product->modal);
             // }
 
-            $payload['amount_profit'] += ($data_product[$i]['active_price'] - $modal) * $data_product[$i]['amount'];
+            //$payload['amount_profit'] += ($data_product[$i]['active_price'] - $modal) * $data_product[$i]['amount'];
         }
 
         // discount all
@@ -899,7 +900,7 @@ class PointOfSales extends Component
         }
         if (!$is_has) {
             // check stock if not null or 0)
-            if (empty($item['amount_available']) && $is_variant && $this->transaction_type == 1) {
+            if (empty($item['amount_available']) && $this->transaction_type == 1) {
                 $this->dispatch('renderAlert', [
                     'icon' => 'error',
                     'title' => 'Stock Kosong',
