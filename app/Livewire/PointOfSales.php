@@ -152,11 +152,11 @@ class PointOfSales extends Component
         );
         $query_product->orderBy('name', 'ASC');
         $products = $query_product->get();
-        foreach($products as $prod){
-            if($prod->image && !str_contains($prod->image, 'upload')){
+        foreach ($products as $prod) {
+            if ($prod->image && !str_contains($prod->image, 'upload')) {
                 $path = $prod->image;
                 $prod->image = Storage::disk('r2')->temporaryUrl($path, now()->addMinutes(5));
-            }   
+            }
         }
 
         if (empty($this->all_products)) {
@@ -277,8 +277,21 @@ class PointOfSales extends Component
 
                 // if transaction type is sale
                 //if ($this->transaction_type == 1) {
-                    $is_stock_debt = $data_product[$i]['amount'];
-                    $availableStock = ProductStock::where('store_id', $user->store_id)
+                $is_stock_debt = $data_product[$i]['amount'];
+                $availableStock = ProductStock::where('store_id', $user->store_id)
+                    ->where('product_id', $data_product[$i]['product_id'])
+                    ->where('variant_id', $data_product[$i]['variant_id'])
+                    ->where('amount_available', '>', 0)
+                    ->where(function ($query) {
+                        $query->whereNull('expired_at')
+                            ->orWhere('expired_at', '>', now());
+                    })
+                    ->sum('amount_available');
+
+                $dStock['amount_before'] = $availableStock;
+                $dStock['amount_after'] = $availableStock - $is_stock_debt;
+                while ($is_stock_debt > 0) {
+                    $stock = ProductStock::where('store_id', $user->store_id)
                         ->where('product_id', $data_product[$i]['product_id'])
                         ->where('variant_id', $data_product[$i]['variant_id'])
                         ->where('amount_available', '>', 0)
@@ -286,60 +299,47 @@ class PointOfSales extends Component
                             $query->whereNull('expired_at')
                                 ->orWhere('expired_at', '>', now());
                         })
-                        ->sum('amount_available');
+                        ->orderBy('created_at', 'ASC')
+                        ->first();
 
-                    $dStock['amount_before'] = $availableStock;
-                    $dStock['amount_after'] = $availableStock - $is_stock_debt;
-                    while ($is_stock_debt > 0) {
-                        $stock = ProductStock::where('store_id', $user->store_id)
-                            ->where('product_id', $data_product[$i]['product_id'])
-                            ->where('variant_id', $data_product[$i]['variant_id'])
-                            ->where('amount_available', '>', 0)
-                            ->where(function ($query) {
-                                $query->whereNull('expired_at')
-                                    ->orWhere('expired_at', '>', now());
-                            })
-                            ->orderBy('created_at', 'ASC')
-                            ->first();
-
-                        if (!$stock) {
-                            $is_success = false;
-                            $txt_error = 'Stock ' . $name . ' tidak mencukupi';
-                            break;
-                        }
-                        $total_modal = number_format($stock->unit_price, 0, ',', '.');
-                        $total_modal = (int) str_replace('.', '', $total_modal);
-
-                        $activePrice = (int)$data_product[$i]['active_price'];
-                        $grosir = true;
-                        if ($data_product[$i]['sell_price'] == $activePrice) {
-                            $grosir = false;
-                        }
-                        //dd($total_modal);
-                        $payload['data'][$i] = [
-                            'product_id' => $data_product[$i]['product_id'],
-                            'variant_id' => $data_product[$i]['variant_id'],
-                            'name' => $name,
-                            'buy_price' => $total_modal,
-                            'sell_price' => $activePrice,
-                            'discount_type' => $data_product[$i]['discount_type'],
-                            'discount_value' => $data_product[$i]['discount_value'],
-                            'amount' => $data_product[$i]['amount'],
-                            'amount_retur' => 0,
-                            'grosir' => $grosir,
-                        ];
-
-                        $is_stock_debt -= $stock->amount_available;
-                        $availableStock -= $stock->amount_available;
-
-                        if ($is_stock_debt > 0) {
-                            $stock->amount_available = 0;
-                            $stock->update();
-                        } else {
-                            $stock->amount_available = abs($is_stock_debt);
-                            $stock->update();
-                        }
+                    if (!$stock) {
+                        $is_success = false;
+                        $txt_error = 'Stock ' . $name . ' tidak mencukupi';
+                        break;
                     }
+                    $total_modal = number_format($stock->unit_price, 0, ',', '.');
+                    $total_modal = (int) str_replace('.', '', $total_modal);
+
+                    $activePrice = (int)$data_product[$i]['active_price'];
+                    $grosir = true;
+                    if ($data_product[$i]['sell_price'] == $activePrice) {
+                        $grosir = false;
+                    }
+                    //dd($total_modal);
+                    $payload['data'][$i] = [
+                        'product_id' => $data_product[$i]['product_id'],
+                        'variant_id' => $data_product[$i]['variant_id'],
+                        'name' => $name,
+                        'buy_price' => $total_modal,
+                        'sell_price' => $activePrice,
+                        'discount_type' => $data_product[$i]['discount_type'],
+                        'discount_value' => $data_product[$i]['discount_value'],
+                        'amount' => $data_product[$i]['amount'],
+                        'amount_retur' => 0,
+                        'grosir' => $grosir,
+                    ];
+
+                    $is_stock_debt -= $stock->amount_available;
+                    $availableStock -= $stock->amount_available;
+
+                    if ($is_stock_debt > 0) {
+                        $stock->amount_available = 0;
+                        $stock->update();
+                    } else {
+                        $stock->amount_available = abs($is_stock_debt);
+                        $stock->update();
+                    }
+                }
                 //}
             } else if (!empty($data_product[$i]['ingredient_id'])) {
                 $ingredient = ProductIngredient::find($data_product[$i]['ingredient_id']);
@@ -682,7 +682,7 @@ class PointOfSales extends Component
         // check discount
         $payload['amount_profit'] = $payload['amount_profit'] - $total_discount;
         $countIncome = $this->countIncome($payload);
-       // dd($countIncome, $payload);
+        // dd($countIncome, $payload);
         $journal = $this->createJournal($countIncome, $payload);
         //dd($payload, $countIncome, $data_product);
         $payload['journal_id'] = $journal->id;
@@ -705,7 +705,7 @@ class PointOfSales extends Component
             $customer->update();
         }
 
-      //  dd($payload, $total_modal);
+        //  dd($payload, $total_modal);
 
         DB::commit();
 
@@ -748,14 +748,17 @@ class PointOfSales extends Component
         $incomeGrosir = 0;
         $incomeEceran = 0;
         foreach ($payload['data'] as $product) {
-            if (!$product['grosir']) {
-                $hppEceran += $product['amount'] * $product['buy_price'];
-                $incomeEceran += $product['amount'] * $product['sell_price'];
-            } else {
+            $isGrosir = isset($product['grosir']) && $product['grosir'];
+
+            if ($isGrosir) {
                 $hppGrosir += $product['amount'] * $product['buy_price'];
                 $incomeGrosir += $product['amount'] * $product['sell_price'];
+            } else {
+                $hppEceran += $product['amount'] * $product['buy_price'];
+                $incomeEceran += $product['amount'] * $product['sell_price'];
             }
         }
+
         return [
             'grosir' => $hppGrosir,
             'income_grosir' => $incomeGrosir,
@@ -766,7 +769,7 @@ class PointOfSales extends Component
 
     public function createJournal($countIncome, $payload)
     {
-       // dd($countIncome, $payload);
+        // dd($countIncome, $payload);
         $store_id = $this->user->store_id;
         $journalHead = JournalEntry::create([
             'store_id' => $store_id,
