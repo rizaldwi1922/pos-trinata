@@ -94,6 +94,7 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
         Route::group(['as' => 'products.', 'prefix' => 'product'], function () {
             Route::get('barcodes', [ProductController::class, 'barcode'])->name('barcode');
             Route::resource('variants', ProductVariantController::class);
+            Route::get('/variants/data', [ProductVariantController::class, 'data'])->name('product-variants.data');
             Route::resource('ingredients', ProductIngredientController::class);
             Route::resource('categories', ProductCategoryController::class);
             Route::resource('units', ProductUnitController::class);

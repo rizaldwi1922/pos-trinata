@@ -14,9 +14,16 @@
             <div class="card-body">
                 <div class="mb-3">
                     <label for="variant_id" class="form-label mb-0">Produk Varian <span class="text-danger">*</span></label>
-                    <select class="form-select" id="variant_id" name="variant_id" required>
+                    <select class="form-select select2" id="variant_id" name="variant_id" required>
+                        @php
+                            $variants = \App\Models\ProductVariant::select('product_variants.*')
+                                ->join('products', 'product_variants.product_id', '=', 'products.id')
+                                ->where('product_variants.store_id', auth()->user()->store_id)
+                                ->orderBy('products.name')
+                                ->get();
+                        @endphp
                         <option value="">Pilih Produk Varian</option>
-                        @foreach (App\Models\ProductVariant::where('store_id', auth()->user()->store_id)->get() as $variant)
+                        @foreach ($variants as $variant)
                             <option value="{{ $variant->id }}">{{ $variant->product->name }} - {{ $variant->measurement }}
                                 {{ $variant->unit->symbol }}</option>
                         @endforeach
@@ -58,3 +65,11 @@
     </div>
 
 @endsection
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2();
+        });
+    </script>
+@endpush

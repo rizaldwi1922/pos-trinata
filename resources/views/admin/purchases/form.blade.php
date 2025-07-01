@@ -4,9 +4,6 @@
 
 @section('content')
 
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
     <div class="card mt-4">
         <form action="{{ route('admin.purchases.store') }}" class="form-control" method="POST" enctype="multipart/form-data">
             @csrf
