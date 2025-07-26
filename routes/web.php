@@ -138,6 +138,10 @@ Route::group(['as' => 'web.admin.', 'prefix' => 'web/admin'], function () {
 // Point of Sales
 Route::group(['middleware' => ['auth'], 'as' => 'app.', 'prefix' => 'app'], function () {
     Route::get('point_of_sales', [POSController::class, 'index'])->name('point_of_sale');
+
+    Route::controller(App\Http\Controllers\OrderEntryController::class)->group(function () {
+            Route::get('/order-point-of-sale', 'index')->name('order.index');
+    });
 });
 
 // View and Download File route
