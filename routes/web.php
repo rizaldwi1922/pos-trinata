@@ -35,6 +35,7 @@ use App\Http\Controllers\Webmin\DashboardController as WebminDashboardController
 use App\Http\Controllers\Webmin\NewsController;
 use App\Http\Controllers\Webmin\RegisterUserController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::group(['as' => 'web.', 'middleware' => ['webmin']], function () {
     Route::get('/', [WebController::class, 'home']);
@@ -147,3 +148,8 @@ Route::group(['middleware' => ['auth'], 'as' => 'app.', 'prefix' => 'app'], func
 // View and Download File route
 Route::get('view/{filename}', [Controller::class, 'viewFile'])->name('web.view.file');
 Route::get('download/{filename}', [Controller::class, 'downloadFile'])->name('web.download.file');
+
+
+Route::get('/pos', function () {
+    return Inertia::render('Pos/index');
+});
