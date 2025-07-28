@@ -78,7 +78,7 @@
                                     <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                         data-bs-placement="top" title="Print">
                                         <a href="{{ route('admin.transactions.show', $item->id) }}?from=dashboard"
-                                            target="_blank" class="text-muted d-inline-block">
+                                             class="text-muted d-inline-block">
                                             <i class="bx bx-printer"></i>
                                         </a>
                                     </li>

@@ -353,7 +353,7 @@
                         <ul class="p-0 m-0">
                             @foreach ($payload['arr_last_transactions'] as $item)
                                 <a href="{{ route('admin.transactions.show', $item['id']) }}?from=dashboard"
-                                    target="_blank">
+                                    >
                                     <li class="d-flex mb-4 pb-1">
                                         <div class="avatar flex-shrink-0 me-3">
                                             <span class="text-dark">{{ $loop->iteration }}</span>
