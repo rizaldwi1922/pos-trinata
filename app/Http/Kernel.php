@@ -14,10 +14,10 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected $middleware = [
-        // \App\Http\Middleware\TrustHosts::class,
-        \Fahlisaputra\Minify\Middleware\MinifyCss::class,
-        \Fahlisaputra\Minify\Middleware\MinifyJavascript::class,
-        \Fahlisaputra\Minify\Middleware\MinifyHtml::class,
+        \App\Http\Middleware\TrustHosts::class,
+        // \Fahlisaputra\Minify\Middleware\MinifyCss::class,
+        // \Fahlisaputra\Minify\Middleware\MinifyJavascript::class,
+        // \Fahlisaputra\Minify\Middleware\MinifyHtml::class,
         \App\Http\Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
@@ -39,6 +39,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\HandleInertiaRequests::class,
         ],
 
         'api' => [

@@ -35,6 +35,12 @@ use App\Http\Controllers\Webmin\DashboardController as WebminDashboardController
 use App\Http\Controllers\Webmin\NewsController;
 use App\Http\Controllers\Webmin\RegisterUserController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/test-dev', function () {
+    return Inertia::render('Welcome');
+});
+
 
 Route::group(['as' => 'web.', 'middleware' => ['webmin']], function () {
     Route::get('/', [WebController::class, 'home']);

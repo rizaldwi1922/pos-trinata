@@ -45,8 +45,9 @@
                             <td class="no">{{ ($data->currentpage() - 1) * $data->perpage() + $loop->index + 1 }}</td>
                             <td>{{ $item->name }}</td>
                             <td>{{ $item->code }}</td>
-                            <td><img src="@viewfile($item->image)" onerror="this.src='{{ asset($item->image) }}'" width="50px"
-                                    alt=""> </td>
+                            <td><img src="@viewfile($item->image)" 
+     onerror="this.onerror=null;this.src='{{ asset($item->image) }}'" 
+     width="50px" alt=""></td>
                             <td>{{ Carbon\Carbon::parse($item->updated_at)->translatedFormat('d F Y') }}
                                 <small class="text-muted">{{ Carbon\Carbon::parse($item->updated_at)->format('H:i') }}
                                     WIB</small>
