@@ -24,6 +24,7 @@
     <div class="menu-inner-shadow"></div>
 
     <ul class="menu-inner py-1">
+        
         @foreach ($menus as $menu)
             @php
                 // check for menu permission

@@ -519,7 +519,7 @@
                 })
 
                 const handlePrint = (payload) => {
-                    console.log(payload);
+                    console.log("-->", payload);
                     if (window.ReactNativeWebView) {
                         window.ReactNativeWebView.postMessage(
                             JSON.stringify({

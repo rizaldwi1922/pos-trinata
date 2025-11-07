@@ -23,7 +23,7 @@ class Menu extends Model
             [
                 'name' => 'Point Of Sales',
                 'icon' => 'bx bx-calculator',
-                'route' => route('app.point_of_sale'),
+                'route' => route('pos.inertia'),
             ],
             [
                 'label' => 'Operasional',

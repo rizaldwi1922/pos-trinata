@@ -37,10 +37,6 @@ use App\Http\Controllers\Webmin\RegisterUserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/test-dev', function () {
-    return Inertia::render('Welcome');
-});
-
 
 Route::group(['as' => 'web.', 'middleware' => ['webmin']], function () {
     Route::get('/', [WebController::class, 'home']);
@@ -149,3 +145,9 @@ Route::group(['middleware' => ['auth'], 'as' => 'app.', 'prefix' => 'app'], func
 // View and Download File route
 Route::get('view/{filename}', [Controller::class, 'viewFile'])->name('web.view.file');
 Route::get('download/{filename}', [Controller::class, 'downloadFile'])->name('web.download.file');
+
+Route::controller(App\Http\Controllers\Inerta\PosController::class)->group(function () {
+        Route::get('/pos-inertia', 'index')->name('pos.inertia');
+        Route::get('/pos-inertia/product', 'getProduct')->name('pos.inertia.product');
+        Route::post('/pos-inertia/submit-payment', 'submitPayment')->name('pos.inertia.submit-payment');
+});
