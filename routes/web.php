@@ -35,7 +35,6 @@ use App\Http\Controllers\Webmin\DashboardController as WebminDashboardController
 use App\Http\Controllers\Webmin\NewsController;
 use App\Http\Controllers\Webmin\RegisterUserController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 
 Route::group(['as' => 'web.', 'middleware' => ['webmin']], function () {
