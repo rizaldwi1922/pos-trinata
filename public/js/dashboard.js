@@ -147,6 +147,114 @@ async function renderNetChart(mode, startDate = '', endDate = '') {
     });
 }
 
+
+async function loadDashboardStats() {
+    try {
+        const res = await fetch('/admin/dashboard/stat');
+        const data = await res.json();
+        const fmt = v => 'Rp ' + Number(v ?? 0).toLocaleString('id-ID');
+
+        // HARI INI
+        document.querySelector('#stat-penjualan').textContent = fmt(data.total_penjualan_hari_ini);
+        document.querySelector('#stat-pembelian').textContent = fmt(data.total_pembelian_hari_ini);
+        document.querySelector('#stat-pendapatan').textContent = fmt(data.pendapatan_bersih_hari_ini);
+
+        // TOTAL KESELURUHAN
+        document.querySelector('#stat-piutang').textContent = fmt(data.total_piutang);
+        document.querySelector('#stat-aset').textContent = fmt(data.total_aset);
+        document.querySelector('#stat-kas').textContent = fmt(data.total_kas);
+        document.querySelector('#stat-hutang').textContent = fmt(data.total_hutang);
+
+        const statModal = document.querySelector('#stat-modal');
+        if (statModal) statModal.textContent = fmt(data.total_modal);
+    } catch (err) {
+        console.error('Gagal memuat data dashboard:', err);
+    }
+}
+
+
+async function loadTopProductsChart() {
+    const res = await fetch('/admin/dashboard/top-products');
+    const data = await res.json();
+
+    // ambil nama produk & jumlah terjual
+    const labels = data.map(p => p.name);
+    const values = data.map(p => p.total_amount);
+
+    const ctx = document.getElementById('topProductsChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Jumlah Terjual',
+                data: values,
+                borderWidth: 1,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)'
+            }]
+        },
+        options: {
+            indexAxis: 'y', // horizontal bar chart
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 10
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: '10 Barang Paling Laku',
+                    font: { size: 16 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => ` ${context.dataset.label}: ${context.formattedValue}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        font: {
+                            size: 13,
+                            family: 'Inter, sans-serif'
+                        },
+                        color: '#333',
+                        autoSkip: false,
+                        callback: function(value, index) {
+                            // Tampilkan nama barang lengkap
+                            const name = this.getLabelForValue(value);
+                            // Jika nama terlalu panjang, potong jadi 25 karakter
+                            return name.length > 25 ? name.substring(0, 25) + '…' : name;
+                        }
+                    },
+                    grid: {
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: {
+                            size: 12
+                        },
+                        color: '#666'
+                    },
+                    grid: {
+                        drawBorder: false
+                    }
+                }
+            }
+        }
+    });
+}
+
 // tombol navigasi
 document.getElementById('net-prev').onclick = () => { netOffset++; renderNetChart(netMode.value); };
 document.getElementById('net-next').onclick = () => { if (netOffset > 0) netOffset--; renderNetChart(netMode.value); };
@@ -166,3 +274,5 @@ document.getElementById('net-filter').onclick = () => {
 
 // load awal
 renderNetChart('daily');
+loadDashboardStats();
+loadTopProductsChart();

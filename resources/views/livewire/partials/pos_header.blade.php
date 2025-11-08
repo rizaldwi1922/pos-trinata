@@ -5,7 +5,7 @@
                 <div class="">
                     <div class="greeting-text d-flex align-items-center">
                         @if($user->roles->first()->id == 1 || $user->roles->first()->id == 3)
-                        <a href="/admin/dashboard" class="btn btn-primary btn-sm">
+                        <a href="/admin/landing" class="btn btn-primary btn-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd"

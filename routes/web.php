@@ -73,9 +73,14 @@ Route::group(['middleware' => ['auth', 'role:super-admin'], 'as' => 'super.', 'p
 Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
     Route::group(['middleware' => ['auth']], function () {
         Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('landing', function () {
+            return view('admin.landing');
+        })->name('landing');
        // Route::get('dashboard/v2', [AdminDashboardController::class, 'dashboardV2'])->name('dashboard.v2');
         Route::get('dashboard/sales-chart', [AdminDashboardController::class, 'salesChart'])->name('dashboard.salesChart');
         Route::get('dashboard/net-income', [AdminDashboardController::class, 'netIncomeChart'])->name('dashboard.netIncomeChart');
+        Route::get('dashboard/stat', [AdminDashboardController::class, 'dashboardStats'])->name('dashboard.dashboardStats');
+        Route::get('dashboard/top-products', [AdminDashboardController::class, 'topProducts']);
         Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
         Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
         Route::get('shifts', [ShiftController::class, 'index'])->name('shifts.index');

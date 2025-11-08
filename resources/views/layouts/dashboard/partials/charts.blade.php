@@ -59,3 +59,12 @@
         <canvas id="netIncomeChart" class="w-full"></canvas>
     </div>
 </div>
+
+<div class="chart-card bg-white p-6 rounded-xl shadow mt-6 w-full">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="font-semibold text-lg">Top 10 Barang Paling Laku</h3>
+    </div>
+    <div class="chart-container w-full h-[400px]">
+        <canvas id="topProductsChart"></canvas>
+    </div>
+</div>

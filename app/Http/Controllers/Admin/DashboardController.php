@@ -282,4 +282,111 @@ class DashboardController extends Controller
 
         return response()->json($data);
     }
+
+    public function dashboardStats()
+    {
+        $query = "
+            SELECT
+                -- ========================
+                -- 📅 HARI INI
+                -- ========================
+
+                -- 💰 Total Penjualan Hari Ini (4010 + 4020)
+                (
+                    SELECT 
+                        SUM(CASE WHEN jd.account_code IN ('4010','4020') THEN jd.credit - jd.debit ELSE 0 END)
+                    FROM journal_details jd
+                    WHERE DATE(jd.created_at) = CURDATE()
+                ) AS total_penjualan_hari_ini,
+
+                -- 🧾 Total Pembelian Hari Ini (utang usaha bertambah)
+                (
+                    SELECT 
+                        SUM(CASE WHEN jd.account_code = '2010' THEN jd.debit - jd.credit ELSE 0 END)
+                    FROM journal_details jd
+                    WHERE DATE(jd.created_at) = CURDATE()
+                ) AS total_pembelian_hari_ini,
+
+                -- 💵 Laba Kotor Hari Ini
+                (
+                    SELECT 
+                        (
+                            SUM(CASE WHEN jd.account_code IN ('4010','4020') THEN jd.credit - jd.debit ELSE 0 END)
+                            - SUM(CASE WHEN jd.account_code IN ('5010','5020') THEN jd.debit - jd.credit ELSE 0 END)
+                        )
+                    FROM journal_details jd
+                    WHERE DATE(jd.created_at) = CURDATE()
+                ) AS laba_kotor_hari_ini,
+
+                -- ⚙️ Pengeluaran Hari Ini
+                (
+                    SELECT 
+                        SUM(CASE WHEN jd.account_code IN ('5030','5040','5050','5060','5090') THEN jd.debit - jd.credit ELSE 0 END)
+                    FROM journal_details jd
+                    WHERE DATE(jd.created_at) = CURDATE()
+                ) AS total_pengeluaran_hari_ini,
+
+                -- 🟩 Pendapatan Bersih Hari Ini
+                (
+                    SELECT 
+                        (
+                            (
+                                SUM(CASE WHEN jd.account_code IN ('4010','4020') THEN jd.credit - jd.debit ELSE 0 END)
+                                - SUM(CASE WHEN jd.account_code IN ('5010','5020') THEN jd.debit - jd.credit ELSE 0 END)
+                            )
+                            - SUM(CASE WHEN jd.account_code IN ('5030','5040','5050','5060','5090') THEN jd.debit - jd.credit ELSE 0 END)
+                        )
+                    FROM journal_details jd
+                    WHERE DATE(jd.created_at) = CURDATE()
+                ) AS pendapatan_bersih_hari_ini,
+
+                -- ========================
+                -- 📊 TOTAL KESELURUHAN
+                -- ========================
+
+                -- 🧾 Piutang Pelanggan
+                SUM(CASE WHEN jd.account_code = '1020' THEN jd.debit - jd.credit ELSE 0 END) AS total_piutang,
+
+                -- 🏦 Total Aset (1010–1040)
+                SUM(CASE WHEN jd.account_code BETWEEN 1010 AND 1040 THEN jd.debit - jd.credit ELSE 0 END) AS total_aset,
+
+                -- 💰 Total Kas
+                SUM(CASE WHEN jd.account_code = '1010' THEN jd.debit - jd.credit ELSE 0 END) AS total_kas,
+
+                -- 🔴 Total Hutang Supplier
+                SUM(CASE WHEN jd.account_code = '2010' THEN jd.credit - jd.debit ELSE 0 END) AS total_hutang,
+
+                -- ⚖️ Total Modal
+                SUM(CASE WHEN jd.account_code = '3100' THEN jd.credit - jd.debit ELSE 0 END) AS total_modal
+
+            FROM journal_details jd
+        ";
+
+        $data = DB::selectOne($query);
+        return response()->json($data);
+    }
+
+    public function topProducts()
+    {
+        $query = "
+            SELECT 
+                p.id, 
+                p.name, 
+                penjualan.total_amount
+            FROM (
+                SELECT 
+                    t.product_id, 
+                    SUM(t.amount) AS total_amount
+                FROM transaction_logs t
+                GROUP BY t.product_id
+            ) AS penjualan
+            INNER JOIN products p ON p.id = penjualan.product_id
+            ORDER BY penjualan.total_amount DESC
+            LIMIT 10
+        ";
+
+        $data = DB::select($query);
+
+        return response()->json($data);
+    }
 }
