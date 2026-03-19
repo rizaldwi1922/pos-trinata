@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\JournalEntry;
+use App\Models\JournalDetail;
+use Illuminate\Support\Facades\Log;
 
 class TransactionController extends Controller
 {
@@ -79,11 +82,38 @@ class TransactionController extends Controller
 
     public function destroy(Transaction $transaction)
     {
-        DB::table('transaction_logs')->where('transaction_id', $transaction->id)->delete();
+        // Menggunakan closure untuk otomatisasi commit dan rollback
+        try {
+            DB::transaction(function () use ($transaction) {
+                $journalId = $transaction->journal_id;
 
-        $transaction->delete();
+                // 1. Hapus log transaksi
+                DB::table('transaction_logs')
+                    ->where('transaction_id', $transaction->id)
+                    ->delete();
 
-        Alert::success('Berhasil', 'Transaksi berhasil dihapus');
+                // 2. Hapus data transaksi itu sendiri
+                $transaction->delete();
+
+                if ($journalId) {
+                    // 3. Hapus detail jurnal terlebih dahulu (karena biasanya ada foreign key)
+                    DB::table('journal_details')
+                        ->where('journal_id', $journalId)
+                        ->delete();
+
+                    // 4. Hapus header jurnal
+                    DB::table('journal_entrys')
+                        ->where('id', $journalId)
+                        ->delete();
+                }
+            });
+
+            Alert::success('Berhasil', 'Transaksi dan data jurnal terkait berhasil dihapus');
+        } catch (\Exception $e) {
+            // Jika terjadi error, kirim pesan error ke user atau log ke sistem
+            Log::error("Gagal menghapus transaksi ID {$transaction->id}: " . $e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan saat menghapus data');
+        }
 
         return redirect()->route('admin.transactions.index');
     }
