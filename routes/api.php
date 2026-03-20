@@ -38,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/customers', [CustomerController::class, 'store']);
 
     // // Transaction
-    // Route::post('/transactions', [PosController::class, 'submitPayment']);
+    Route::post('/transactions', [PosController::class, 'submitPayment']);
     // Route::get('/transactions', [PosController::class, 'getHistoryTransaction']);
     // Route::get('/transactions/search', [PosController::class, 'searchTransaction']);
 
