@@ -41,9 +41,10 @@ class ProductVariantStockController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return self::view('admin.product-variant-stocks.form');
+        $page = $request->query('page', 1);
+        return self::view('admin.product-variant-stocks.form', compact('page'));
     }
 
     public function store(Request $request)
@@ -101,15 +102,16 @@ class ProductVariantStockController extends Controller
         return redirect()->route('admin.products.variant-stocks.index');
     }
 
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         $productStock = ProductStock::find($id);
 
         $productStock->delete();
+        $page = $request->query('page', 1);
 
         Alert::success('Berhasil', 'Stok berhasil dihapus');
 
-        return redirect()->route('admin.products.variant-stocks.index');
+        return redirect()->route('admin.products.variant-stocks.index', ['page' => $page]);
     }
 
 }

@@ -21,7 +21,7 @@
                             <div class="col-6"></div>
                         @endif
                         @if ($blade_user->hasPermissionTo('can_create_admin_products'))
-                            <a href="{{ route('admin.products.create') }}" class="col-6 btn btn-default"><i
+                            <a href="{{ route('admin.products.create') }}?page={{$data->currentpage()}}" class="col-6 btn btn-default"><i
                                     class="bx bx-plus"></i> &nbsp;Tambah Produk</a>
                         @endif
                     </div>
@@ -139,7 +139,7 @@
                                 <ul class="list-inline hstack gap-2 mb-0">
                                     @include('layouts.admin.partials.act_edit', [
                                         'title' => 'Produk',
-                                        'href' => route('admin.products.edit', $item->id),
+                                        'href' => route('admin.products.edit', $item->id).'?page='.$data->currentpage(),
                                         'permission' => 'products',
                                     ])
                                     @include('layouts.admin.partials.act_delete', [

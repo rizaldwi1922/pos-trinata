@@ -14,7 +14,7 @@
                     </div>
                     @if ($blade_user->hasPermissionTo('can_create_admin_product_variant_stocks'))
                         <div class="col-md-6 text-end">
-                            <a href="{{ route('admin.products.variant-stocks.create') }}" class="btn btn-default"><i class="bx bx-plus"></i> &nbsp;Tambah Stok</a>
+                            <a href="{{ route('admin.products.variant-stocks.create') }}?page={{$data->currentpage()}}" class="btn btn-default"><i class="bx bx-plus"></i> &nbsp;Tambah Stok</a>
                         </div>
                     @endif
                 </div>
@@ -80,7 +80,7 @@
                                 <ul class="list-inline hstack gap-2 mb-0">
                                     @include('layouts.admin.partials.act_delete', [
                                         'title' => 'Stok',
-                                        'href' => route('admin.products.variant-stocks.destroy', $item->id),
+                                        'href' => route('admin.products.variant-stocks.destroy', $item->id).'?page='.$data->currentpage(),
                                         'permission' => 'product_variant_stocks',
                                     ])
                                 </ul>

@@ -39,9 +39,10 @@ class ProductController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return self::view('admin.products.form');
+        $page = $request->query('page', 1);
+        return self::view('admin.products.form', compact('page'));
     }
 
     public function store(Request $request)
@@ -176,7 +177,8 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        return self::view('admin.products.form', compact('product'));
+        $page = request()->query('page', 1);
+        return self::view('admin.products.form', compact('product', 'page'));
     }
 
     public function update(Request $request, Product $product)
@@ -184,6 +186,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required',
             'category_id' => 'required',
+            'factor' => 'required',
             'units' => 'nullable',
             'buy_price' => 'nullable',
             'sell_price' => 'nullable',
@@ -283,6 +286,7 @@ class ProductController extends Controller
                     'id' => $variantId,
                 ], [
                     'store_id' => $user->store_id,
+                    'factor' => $request->factor[$key],
                     'product_id' => $product->id,
                     'unit_id' => $request->units[$key],
                     'purchase_unit_id' => $request->unit_purchase[$key],

@@ -42,9 +42,10 @@ class PosController extends Controller
         $category_id = $request->query('category_id');
         $search      = $request->query('search');
         $page        = (int) $request->query('page', 1);
-        $limit       = (int) $request->query('limit', 12);
+        $limit       = 50;
         $offset      = ($page - 1) * $limit;
 
+        // ── Query 1: variant-based products ──────────────────────
         $query = DB::table('product_variants as pv')
             ->select([
                 'pv.id as variant_id',
@@ -54,8 +55,8 @@ class PosController extends Controller
                 'pv.sell_retail_price',
                 'pv.measurement',
                 DB::raw('(SELECT SUM(amount_available) FROM product_stocks
-                          WHERE variant_id = pv.id
-                          AND (expired_at IS NULL OR expired_at > NOW())) as amount_available'),
+                      WHERE variant_id = pv.id
+                      AND (expired_at IS NULL OR expired_at > NOW())) as amount_available'),
                 'p.name',
                 'p.image',
                 'pv.code',
@@ -69,7 +70,6 @@ class PosController extends Controller
         if ($category_id) {
             $query->where('p.category_id', $category_id);
         }
-
         if ($search) {
             $op = env('DB_SEARCH_OPERATOR', 'LIKE');
             $query->where(function ($q) use ($search, $op) {
@@ -78,7 +78,7 @@ class PosController extends Controller
             });
         }
 
-        // Union: ingredient-based products
+        // ── Query 2: ingredient-based products ───────────────────
         $union = DB::table('products as p')
             ->select([
                 DB::raw('NULL as variant_id'),
@@ -88,8 +88,8 @@ class PosController extends Controller
                 DB::raw('NULL as sell_retail_price'),
                 DB::raw('NULL as measurement'),
                 DB::raw('(SELECT SUM(amount_available) FROM product_ingredient_stocks
-                          WHERE product_id = p.id
-                          AND (expired_at IS NULL OR expired_at > NOW())) as amount_available'),
+                      WHERE product_id = p.id
+                      AND (expired_at IS NULL OR expired_at > NOW())) as amount_available'),
                 'p.name',
                 'p.image',
                 'p.code',
@@ -109,13 +109,19 @@ class PosController extends Controller
             });
         }
 
-        $products = $query->union($union)
+        // ── Bungkus UNION sebagai subquery, lalu LIMIT/OFFSET di luar ──
+        $unionQuery = $query->union($union);
+        $sql        = $unionQuery->toSql();
+        $bindings   = $unionQuery->getBindings();
+
+        $products = DB::table(DB::raw("({$sql}) as combined"))
+            ->mergeBindings($unionQuery)  // ← teruskan binding agar tidak SQL injection
             ->orderBy('name', 'ASC')
             ->limit($limit)
-            ->offset($offset)   // ← tambahkan ini
+            ->offset($offset)
             ->get();
 
-        // Generate signed image URLs
+        // ── Generate signed image URLs ────────────────────────────
         foreach ($products as $prod) {
             if ($prod->image && !str_contains($prod->image, 'upload')) {
                 $prod->image = Storage::disk('r2')->temporaryUrl(

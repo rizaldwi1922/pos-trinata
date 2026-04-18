@@ -6,7 +6,7 @@
 
     <div class="card mt-4">
         <div class="card-header">
-            <a href="/admin/products" class="btn btn-primary btn-sm">
+            <a href="/admin/products?page={{ $page }}" class="btn btn-primary btn-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                     class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
                     <path fill-rule="evenodd"
